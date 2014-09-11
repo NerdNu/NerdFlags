@@ -118,7 +118,6 @@ public class NerdFlagsPlugin extends JavaPlugin {
     public void expectTeleport(Player player) {
         this.nextTP = player;
         this.timestamp = player.getPlayerTime();
-        System.out.println("Expecting teleport");
     }
     
     public boolean hasCompassed(Player player) {

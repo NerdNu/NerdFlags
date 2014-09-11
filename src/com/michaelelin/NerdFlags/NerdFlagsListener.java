@@ -135,7 +135,6 @@ public class NerdFlagsListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         if (plugin.hasCompassed(event.getPlayer())) {
-            System.out.println("Has compassed");
             ApplicableRegionSet setAtLocation = worldguard.getGlobalRegionManager().get(event.getFrom().getWorld()).getApplicableRegions(event.getFrom());
             ApplicableRegionSet setAtTeleport = worldguard.getGlobalRegionManager().get(event.getTo().getWorld()).getApplicableRegions(event.getTo());
             LocalPlayer player = worldguard.wrapPlayer(event.getPlayer());
