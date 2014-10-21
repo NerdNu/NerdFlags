@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -38,7 +39,15 @@ public class NerdFlagsListener implements Listener {
         }
     }
     
- // WE checks this at a NORMAL priority, so we'll intercept it beforehand.
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onEntityDeath(EntityDeathEvent event) {
+        ApplicableRegionSet setAtLocation = worldguard.getGlobalRegionManager().get(event.getEntity().getLocation().getWorld()).getApplicableRegions(event.getEntity().getLocation());
+        if (!setAtLocation.allows(plugin.ALLOW_MOB_DROPS)) {
+            event.getDrops().clear();
+        }
+    }
+    
+    // WE checks this at a NORMAL priority, so we'll intercept it beforehand.
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerInteract(PlayerInteractEvent event) {
         if (event.getItem() != null && event.getItem().getTypeId() == worldedit.getWorldEdit().getConfiguration().navigationWand) {

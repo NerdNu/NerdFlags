@@ -16,6 +16,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
     private long timestamp;
 
     public StateFlag ALLOW_DROPS;
+    public StateFlag ALLOW_MOB_DROPS;
 
     public StateFlag COMPASS;
     
@@ -52,12 +53,16 @@ public class NerdFlagsPlugin extends JavaPlugin {
             getServer().getPluginManager().registerEvents(listener, this);
             
             ALLOW_DROPS = new StateFlag("allow-drops", true);
+            ALLOW_MOB_DROPS = new StateFlag("allow-mob-drops", true);
             COMPASS = new StateFlag("compass", true);
+            
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_DROPS);
+            wgCustomFlagsPlugin.addCustomFlag(ALLOW_MOB_DROPS);
             wgCustomFlagsPlugin.addCustomFlag(COMPASS);
             
             saveDefaultConfig();
             loadConfig();
+            
             wgCustomFlagsPlugin.addCustomFlag(USE_DISPENSER);
             wgCustomFlagsPlugin.addCustomFlag(USE_NOTE_BLOCK);
             wgCustomFlagsPlugin.addCustomFlag(USE_WORKBENCH);
