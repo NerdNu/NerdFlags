@@ -8,6 +8,7 @@ import com.mewin.WGCustomFlags.WGCustomFlagsPlugin;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.StringFlag;
 
 public class NerdFlagsPlugin extends JavaPlugin {
     
@@ -19,6 +20,8 @@ public class NerdFlagsPlugin extends JavaPlugin {
     public StateFlag ALLOW_MOB_DROPS;
 
     public StateFlag COMPASS;
+    
+    public StringFlag DATE;
     
     public StateFlag USE_DISPENSER;
     public StateFlag USE_NOTE_BLOCK;
@@ -55,10 +58,12 @@ public class NerdFlagsPlugin extends JavaPlugin {
             ALLOW_DROPS = new StateFlag("allow-drops", true);
             ALLOW_MOB_DROPS = new StateFlag("allow-mob-drops", true);
             COMPASS = new StateFlag("compass", true);
+            DATE = new StringFlag("date");
             
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_DROPS);
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_MOB_DROPS);
             wgCustomFlagsPlugin.addCustomFlag(COMPASS);
+            wgCustomFlagsPlugin.addCustomFlag(DATE);
             
             saveDefaultConfig();
             loadConfig();

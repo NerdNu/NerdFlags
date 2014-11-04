@@ -9,6 +9,7 @@ Available flags:
 | compass               | true          |
 | allow-drops           | true          |
 | allow-mob-drops       | true          |
+| date                  |               |
 | use-dispenser         | true          |
 | use-note-block        | false         |
 | use-workbench         | true          |
