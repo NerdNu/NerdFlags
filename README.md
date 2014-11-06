@@ -4,30 +4,31 @@ WorldGuard custom flags for the Reddit Public Minecraft servers. Includes [WGCom
 
 Available flags:
 
-| Flag Name             | Default Value |
-|-----------------------|---------------|
-| compass               | true          |
-| allow-drops           | true          |
-| allow-mob-drops       | true          |
-| date                  |               |
-| use-dispenser         | true          |
-| use-note-block        | false         |
-| use-workbench         | true          |
-| use-door              | true          |
-| use-lever             | true          |
-| use-pressure-plate    | true          |
-| use-button            | true          |
-| use-jukebox           | true          |
-| use-repeater          | false         |
-| use-trap-door         | true          |
-| use-fence-gate        | true          |
-| use-brewing-stand     | true          |
-| use-cauldron          | true          |
-| use-enchantment-table | true          |
-| use-ender-chest       | true          |
-| use-tripwire          | true          |
-| use-beacon            | true          |
-| use-anvil             | true          |
-| use-comparator        | false         |
-| use-hopper            | true          |
-| use-dropper           | true          |
+| Flag Name             | Type   | Default Value |
+|-----------------------|--------|---------------|
+| date                  | String | *N/A*         |
+| created-by            | String | *N/A*         |
+| compass               | State  | ALLOW         |
+| allow-drops           | State  | ALLOW         |
+| allow-mob-drops       | State  | ALLOW         |
+| use-dispenser         | State  | ALLOW         |
+| use-note-block        | State  | DENY          |
+| use-workbench         | State  | ALLOW         |
+| use-door              | State  | ALLOW         |
+| use-lever             | State  | ALLOW         |
+| use-pressure-plate    | State  | ALLOW         |
+| use-button            | State  | ALLOW         |
+| use-jukebox           | State  | ALLOW         |
+| use-repeater          | State  | DENY          |
+| use-trap-door         | State  | ALLOW         |
+| use-fence-gate        | State  | ALLOW         |
+| use-brewing-stand     | State  | ALLOW         |
+| use-cauldron          | State  | ALLOW         |
+| use-enchantment-table | State  | ALLOW         |
+| use-ender-chest       | State  | ALLOW         |
+| use-tripwire          | State  | ALLOW         |
+| use-beacon            | State  | ALLOW         |
+| use-anvil             | State  | ALLOW         |
+| use-comparator        | State  | DENY          |
+| use-hopper            | State  | ALLOW         |
+| use-dropper           | State  | ALLOW         |

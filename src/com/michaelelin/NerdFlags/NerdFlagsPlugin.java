@@ -22,6 +22,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
     public StateFlag COMPASS;
     
     public StringFlag DATE;
+    public StringFlag CREATED_BY;
     
     public StateFlag USE_DISPENSER;
     public StateFlag USE_NOTE_BLOCK;
@@ -59,11 +60,13 @@ public class NerdFlagsPlugin extends JavaPlugin {
             ALLOW_MOB_DROPS = new StateFlag("allow-mob-drops", true);
             COMPASS = new StateFlag("compass", true);
             DATE = new StringFlag("date");
+            CREATED_BY = new StringFlag("created-by");
             
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_DROPS);
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_MOB_DROPS);
             wgCustomFlagsPlugin.addCustomFlag(COMPASS);
             wgCustomFlagsPlugin.addCustomFlag(DATE);
+            wgCustomFlagsPlugin.addCustomFlag(CREATED_BY);
             
             saveDefaultConfig();
             loadConfig();
