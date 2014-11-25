@@ -11,6 +11,7 @@ Available flags:
 | compass               | State  | ALLOW         |
 | allow-drops           | State  | ALLOW         |
 | allow-mob-drops       | State  | ALLOW         |
+| snowball-firefight    | State  | DENY          |
 | use-dispenser         | State  | ALLOW         |
 | use-note-block        | State  | DENY          |
 | use-workbench         | State  | ALLOW         |

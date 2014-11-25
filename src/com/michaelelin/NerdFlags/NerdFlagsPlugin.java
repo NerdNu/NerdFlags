@@ -18,6 +18,8 @@ public class NerdFlagsPlugin extends JavaPlugin {
 
     public StateFlag ALLOW_DROPS;
     public StateFlag ALLOW_MOB_DROPS;
+    
+    public StateFlag SNOWBALL_FIREFIGHT;
 
     public StateFlag COMPASS;
     
@@ -58,12 +60,14 @@ public class NerdFlagsPlugin extends JavaPlugin {
             
             ALLOW_DROPS = new StateFlag("allow-drops", true);
             ALLOW_MOB_DROPS = new StateFlag("allow-mob-drops", true);
+            SNOWBALL_FIREFIGHT = new StateFlag("snowball-firefight", false);
             COMPASS = new StateFlag("compass", true);
             DATE = new StringFlag("date");
             CREATED_BY = new StringFlag("created-by");
             
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_DROPS);
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_MOB_DROPS);
+            wgCustomFlagsPlugin.addCustomFlag(SNOWBALL_FIREFIGHT);
             wgCustomFlagsPlugin.addCustomFlag(COMPASS);
             wgCustomFlagsPlugin.addCustomFlag(DATE);
             wgCustomFlagsPlugin.addCustomFlag(CREATED_BY);

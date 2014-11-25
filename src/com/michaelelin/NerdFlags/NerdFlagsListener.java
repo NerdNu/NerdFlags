@@ -1,14 +1,18 @@
 package com.michaelelin.NerdFlags;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -150,6 +154,20 @@ public class NerdFlagsListener implements Listener {
             if (!worldguard.getGlobalRegionManager().hasBypass(player, event.getPlayer().getWorld()) && (!setAtLocation.canBuild(player) && !setAtLocation.allows(plugin.COMPASS, player) || !setAtTeleport.canBuild(player) && !setAtTeleport.allows(plugin.COMPASS, player))) {
                 event.setCancelled(true);
                 event.getPlayer().sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
+            }
+        }
+    }
+    
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onProjectileHit(ProjectileHitEvent event) {
+        if (event.getEntityType() == EntityType.SNOWBALL) {
+            Block b = event.getEntity().getLocation().getBlock();
+            if (b.getType() == Material.FIRE) {
+                ApplicableRegionSet setAtLocation = worldguard.getGlobalRegionManager().get(b.getWorld()).getApplicableRegions(b.getLocation());
+                if (setAtLocation.allows(plugin.SNOWBALL_FIREFIGHT)) {
+                    b.setType(Material.AIR);
+                    b.getWorld().playEffect(b.getLocation(), Effect.EXTINGUISH, 0);
+                }
             }
         }
     }
