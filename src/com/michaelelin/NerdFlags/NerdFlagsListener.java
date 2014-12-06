@@ -1,14 +1,11 @@
 package com.michaelelin.NerdFlags;
 
-import java.lang.reflect.InvocationTargetException;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -20,11 +17,6 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.events.PacketContainer;
-import com.mewin.WGRegionEvents.events.RegionEnterEvent;
-import com.mewin.WGRegionEvents.events.RegionEnteredEvent;
-import com.mewin.WGRegionEvents.events.RegionLeftEvent;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
@@ -162,32 +154,6 @@ public class NerdFlagsListener implements Listener {
             if (!worldguard.getGlobalRegionManager().hasBypass(player, event.getPlayer().getWorld()) && (!setAtLocation.canBuild(player) && !setAtLocation.allows(plugin.COMPASS, player) || !setAtTeleport.canBuild(player) && !setAtTeleport.allows(plugin.COMPASS, player))) {
                 event.setCancelled(true);
                 event.getPlayer().sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerEnteredRegion(RegionEnteredEvent event) {
-        if (event.getRegion().getFlag(plugin.WEATHER) == StateFlag.State.ALLOW) {
-            PacketContainer weatherPacket = plugin.protocolManager.createPacket(PacketType.Play.Server.GAME_STATE_CHANGE);
-            weatherPacket.getIntegers().write(0, 2);
-            weatherPacket.getFloat().write(0, 0F);
-            try {
-                plugin.protocolManager.sendServerPacket(event.getPlayer(), weatherPacket);
-            } catch (InvocationTargetException e) {
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerLeftRegion(RegionLeftEvent event) {
-        if (event.getRegion().getFlag(plugin.WEATHER) == StateFlag.State.ALLOW && !event.getPlayer().getWorld().hasStorm()) {
-            PacketContainer weatherPacket = plugin.protocolManager.createPacket(PacketType.Play.Server.GAME_STATE_CHANGE);
-            weatherPacket.getIntegers().write(0, 1);
-            weatherPacket.getFloat().write(0, 0F);
-            try {
-                plugin.protocolManager.sendServerPacket(event.getPlayer(), weatherPacket);
-            } catch (InvocationTargetException e) {
             }
         }
     }

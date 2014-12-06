@@ -15,6 +15,7 @@ import com.sk89q.worldguard.protection.flags.StringFlag;
 public class NerdFlagsPlugin extends JavaPlugin {
 
     private NerdFlagsListener listener;
+    private NerdFlagsRegionListener regionListener;
     private Player nextTP;
     private long timestamp;
 
@@ -56,13 +57,19 @@ public class NerdFlagsPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        WGCustomFlagsPlugin wgCustomFlagsPlugin = getPlugin("WGCustomFlags", WGCustomFlagsPlugin.class, true);
-        WorldGuardPlugin worldGuardPlugin = getPlugin("WorldGuard", WorldGuardPlugin.class, true);
-        WorldEditPlugin worldEditPlugin = getPlugin("WorldEdit", WorldEditPlugin.class, true);
-        ProtocolLibrary protocolLib = getPlugin("ProtocolLib", ProtocolLibrary.class, false);
 
-        if (wgCustomFlagsPlugin != null && worldGuardPlugin != null && worldEditPlugin != null) {
-            listener = new NerdFlagsListener(this, worldGuardPlugin, worldEditPlugin);
+        if (checkPlugin("ProtocolLib", false)) {
+            protocolManager = ProtocolLibrary.getProtocolManager();
+        }
+
+        if (checkPlugin("WGRegionEvents", false)) {
+            regionListener = new NerdFlagsRegionListener(this);
+            getServer().getPluginManager().registerEvents(regionListener, this);
+        }
+
+        if (checkPlugin("WGCustomFlags", true) && checkPlugin("WorldGuard", true) && checkPlugin("WorldEdit", true)) {
+            WGCustomFlagsPlugin wgCustomFlagsPlugin = getPlugin("WGCustomFlags", WGCustomFlagsPlugin.class);
+            listener = new NerdFlagsListener(this, getPlugin("WorldGuard", WorldGuardPlugin.class), getPlugin("WorldEdit", WorldEditPlugin.class));
             getServer().getPluginManager().registerEvents(listener, this);
 
             ALLOW_DROPS = new StateFlag("allow-drops", true);
@@ -106,19 +113,22 @@ public class NerdFlagsPlugin extends JavaPlugin {
             wgCustomFlagsPlugin.addCustomFlag(USE_HOPPER);
             wgCustomFlagsPlugin.addCustomFlag(USE_DROPPER);
         }
-
-        if (protocolLib != null) {
-            protocolManager = ProtocolLibrary.getProtocolManager();
-        }
     }
 
-    private <T extends Plugin> T getPlugin(String name, Class<T> mainClass, boolean required) {
+    private <T extends Plugin> boolean checkPlugin(String name, boolean required) {
         Plugin plugin = getServer().getPluginManager().getPlugin(name);
-        if (required && (plugin == null || !mainClass.isInstance(plugin))) {
-            getLogger().warning("[" + getName() + "] " + name + " is required for this plugin to work; disabling.");
-            getServer().getPluginManager().disablePlugin(this);
+        if (plugin == null) {
+            if (required) {
+                getLogger().warning("[" + getName() + "] " + name + " is required for this plugin to work; disabling.");
+                getServer().getPluginManager().disablePlugin(this);
+            }
+            return false;
         }
-        return mainClass.cast(plugin);
+        return true;
+    }
+
+    private <T extends Plugin> T getPlugin(String name, Class<T> mainClass) {
+        return mainClass.cast(getServer().getPluginManager().getPlugin(name));
     }
 
     private void loadConfig() {
