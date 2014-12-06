@@ -5,4 +5,5 @@ description: ${project.description}
 website: ${project.url}
 database: false
 depend: [WorldGuard, WorldEdit, WGCustomFlags]
+softdepend: [ProtocolLib, WGRegionEvents]
 authors: [Dumbo52]

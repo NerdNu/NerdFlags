@@ -8,6 +8,7 @@ Available flags:
 |-----------------------|--------|---------------|
 | date                  | String | *N/A*         |
 | created-by            | String | *N/A*         |
+| weather               | State  | DENY          |
 | compass               | State  | ALLOW         |
 | allow-drops           | State  | ALLOW         |
 | allow-mob-drops       | State  | ALLOW         |

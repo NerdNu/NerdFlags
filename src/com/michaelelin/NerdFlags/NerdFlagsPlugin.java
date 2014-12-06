@@ -4,6 +4,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
 import com.mewin.WGCustomFlags.WGCustomFlagsPlugin;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
@@ -11,21 +13,25 @@ import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.StringFlag;
 
 public class NerdFlagsPlugin extends JavaPlugin {
-    
+
     private NerdFlagsListener listener;
     private Player nextTP;
     private long timestamp;
 
+    public ProtocolManager protocolManager;
+
     public StateFlag ALLOW_DROPS;
     public StateFlag ALLOW_MOB_DROPS;
-    
+
     public StateFlag SNOWBALL_FIREFIGHT;
 
     public StateFlag COMPASS;
-    
+
+    public StateFlag WEATHER;
+
     public StringFlag DATE;
     public StringFlag CREATED_BY;
-    
+
     public StateFlag USE_DISPENSER;
     public StateFlag USE_NOTE_BLOCK;
     public StateFlag USE_WORKBENCH;
@@ -50,31 +56,34 @@ public class NerdFlagsPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        WGCustomFlagsPlugin wgCustomFlagsPlugin = getPlugin("WGCustomFlags", WGCustomFlagsPlugin.class);
-        WorldGuardPlugin worldGuardPlugin = getPlugin("WorldGuard", WorldGuardPlugin.class);
-        WorldEditPlugin worldEditPlugin = getPlugin("WorldEdit", WorldEditPlugin.class);
+        WGCustomFlagsPlugin wgCustomFlagsPlugin = getPlugin("WGCustomFlags", WGCustomFlagsPlugin.class, true);
+        WorldGuardPlugin worldGuardPlugin = getPlugin("WorldGuard", WorldGuardPlugin.class, true);
+        WorldEditPlugin worldEditPlugin = getPlugin("WorldEdit", WorldEditPlugin.class, true);
+        ProtocolLibrary protocolLib = getPlugin("ProtocolLib", ProtocolLibrary.class, false);
 
         if (wgCustomFlagsPlugin != null && worldGuardPlugin != null && worldEditPlugin != null) {
             listener = new NerdFlagsListener(this, worldGuardPlugin, worldEditPlugin);
             getServer().getPluginManager().registerEvents(listener, this);
-            
+
             ALLOW_DROPS = new StateFlag("allow-drops", true);
             ALLOW_MOB_DROPS = new StateFlag("allow-mob-drops", true);
             SNOWBALL_FIREFIGHT = new StateFlag("snowball-firefight", false);
             COMPASS = new StateFlag("compass", true);
+            WEATHER = new StateFlag("weather", false);
             DATE = new StringFlag("date");
             CREATED_BY = new StringFlag("created-by");
-            
+
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_DROPS);
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_MOB_DROPS);
             wgCustomFlagsPlugin.addCustomFlag(SNOWBALL_FIREFIGHT);
+            wgCustomFlagsPlugin.addCustomFlag(WEATHER);
             wgCustomFlagsPlugin.addCustomFlag(COMPASS);
             wgCustomFlagsPlugin.addCustomFlag(DATE);
             wgCustomFlagsPlugin.addCustomFlag(CREATED_BY);
-            
+
             saveDefaultConfig();
             loadConfig();
-            
+
             wgCustomFlagsPlugin.addCustomFlag(USE_DISPENSER);
             wgCustomFlagsPlugin.addCustomFlag(USE_NOTE_BLOCK);
             wgCustomFlagsPlugin.addCustomFlag(USE_WORKBENCH);
@@ -97,17 +106,21 @@ public class NerdFlagsPlugin extends JavaPlugin {
             wgCustomFlagsPlugin.addCustomFlag(USE_HOPPER);
             wgCustomFlagsPlugin.addCustomFlag(USE_DROPPER);
         }
+
+        if (protocolLib != null) {
+            protocolManager = ProtocolLibrary.getProtocolManager();
+        }
     }
 
-    private <T extends Plugin> T getPlugin(String name, Class<T> mainClass) {
+    private <T extends Plugin> T getPlugin(String name, Class<T> mainClass, boolean required) {
         Plugin plugin = getServer().getPluginManager().getPlugin(name);
-        if (plugin == null || !mainClass.isInstance(plugin)) {
+        if (required && (plugin == null || !mainClass.isInstance(plugin))) {
             getLogger().warning("[" + getName() + "] " + name + " is required for this plugin to work; disabling.");
             getServer().getPluginManager().disablePlugin(this);
         }
         return mainClass.cast(plugin);
     }
-    
+
     private void loadConfig() {
         USE_DISPENSER = new StateFlag("use-dispenser", getConfig().getBoolean("default-dispenser"));
         USE_NOTE_BLOCK = new StateFlag("use-note-block", getConfig().getBoolean("default-note-block"));
@@ -131,12 +144,12 @@ public class NerdFlagsPlugin extends JavaPlugin {
         USE_HOPPER = new StateFlag("use-hopper", getConfig().getBoolean("default-hopper"));
         USE_DROPPER = new StateFlag("use-dropper", getConfig().getBoolean("default-dropper"));
     }
-    
+
     public void expectTeleport(Player player) {
         this.nextTP = player;
         this.timestamp = player.getPlayerTime();
     }
-    
+
     public boolean hasCompassed(Player player) {
         return this.nextTP == player && this.timestamp == player.getPlayerTime();
     }
