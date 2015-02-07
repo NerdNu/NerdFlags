@@ -25,6 +25,7 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
 
@@ -42,16 +43,16 @@ public class NerdFlagsListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onItemSpawn(ItemSpawnEvent event) {
-        ApplicableRegionSet setAtLocation = worldguard.getGlobalRegionManager().get(event.getLocation().getWorld()).getApplicableRegions(event.getLocation());
-        if (!setAtLocation.allows(plugin.ALLOW_DROPS)) {
+        ApplicableRegionSet setAtLocation = worldguard.getRegionContainer().get(event.getLocation().getWorld()).getApplicableRegions(event.getLocation());
+        if (!setAtLocation.testState(null, plugin.ALLOW_DROPS)) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event) {
-        ApplicableRegionSet setAtLocation = worldguard.getGlobalRegionManager().get(event.getEntity().getLocation().getWorld()).getApplicableRegions(event.getEntity().getLocation());
-        if (!setAtLocation.allows(plugin.ALLOW_MOB_DROPS)) {
+        ApplicableRegionSet setAtLocation = worldguard.getRegionContainer().get(event.getEntity().getLocation().getWorld()).getApplicableRegions(event.getEntity().getLocation());
+        if (!setAtLocation.testState(null, plugin.ALLOW_MOB_DROPS)) {
             event.getDrops().clear();
         }
     }
@@ -169,10 +170,10 @@ public class NerdFlagsListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         if (plugin.hasCompassed(event.getPlayer())) {
-            ApplicableRegionSet setAtLocation = worldguard.getGlobalRegionManager().get(event.getFrom().getWorld()).getApplicableRegions(event.getFrom());
-            ApplicableRegionSet setAtTeleport = worldguard.getGlobalRegionManager().get(event.getTo().getWorld()).getApplicableRegions(event.getTo());
+            ApplicableRegionSet setAtLocation = worldguard.getRegionContainer().get(event.getFrom().getWorld()).getApplicableRegions(event.getFrom());
+            ApplicableRegionSet setAtTeleport = worldguard.getRegionContainer().get(event.getTo().getWorld()).getApplicableRegions(event.getTo());
             LocalPlayer player = worldguard.wrapPlayer(event.getPlayer());
-            if (!worldguard.getGlobalRegionManager().hasBypass(player, event.getPlayer().getWorld()) && (!setAtLocation.canBuild(player) && !setAtLocation.allows(plugin.COMPASS, player) || !setAtTeleport.canBuild(player) && !setAtTeleport.allows(plugin.COMPASS, player))) {
+            if (!player.hasPermission("region.bypass." + event.getPlayer().getWorld().getName()) && (!setAtLocation.testState(player, DefaultFlag.BUILD) && !setAtLocation.testState(player, plugin.COMPASS) || !setAtTeleport.testState(player, DefaultFlag.BUILD) && !setAtTeleport.testState(player, plugin.COMPASS))) {
                 event.setCancelled(true);
                 event.getPlayer().sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
             }
@@ -198,8 +199,8 @@ public class NerdFlagsListener implements Listener {
         if (event.getEntityType() == EntityType.SNOWBALL) {
             Block b = event.getEntity().getLocation().getBlock();
             if (b.getType() == Material.FIRE) {
-                ApplicableRegionSet setAtLocation = worldguard.getGlobalRegionManager().get(b.getWorld()).getApplicableRegions(b.getLocation());
-                if (setAtLocation.allows(plugin.SNOWBALL_FIREFIGHT)) {
+                ApplicableRegionSet setAtLocation = worldguard.getRegionContainer().get(b.getWorld()).getApplicableRegions(b.getLocation());
+                if (setAtLocation.queryState(null, plugin.SNOWBALL_FIREFIGHT) == State.ALLOW) {
                     b.setType(Material.AIR);
                     b.getWorld().playEffect(b.getLocation(), Effect.EXTINGUISH, 0);
                 }
@@ -208,8 +209,8 @@ public class NerdFlagsListener implements Listener {
     }
 
     private boolean allows(StateFlag flag, Location location, LocalPlayer player) {
-        ApplicableRegionSet set = worldguard.getGlobalRegionManager().get(location.getWorld()).getApplicableRegions(location);
-        return worldguard.getGlobalRegionManager().hasBypass(player, location.getWorld()) || set.canBuild(player) || set.allows(flag, player);
+        ApplicableRegionSet set = worldguard.getRegionContainer().get(location.getWorld()).getApplicableRegions(location);
+        return player.hasPermission("region.bypass." + location.getWorld().getName()) || set.testState(player, flag);
     }
 
     private void cancelEvent(PlayerInteractEvent e, boolean cancel, boolean notifyPlayer) {
