@@ -12,6 +12,8 @@ Available flags:
 | compass               | State  | ALLOW         |
 | allow-drops           | State  | ALLOW         |
 | allow-mob-drops       | State  | ALLOW         |
+| nether-portal         | State  | ALLOW         |
+| end-portal            | State  | ALLOW         |
 | snowball-firefight    | State  | DENY          |
 | use-dispenser         | State  | ALLOW         |
 | use-note-block        | State  | DENY          |

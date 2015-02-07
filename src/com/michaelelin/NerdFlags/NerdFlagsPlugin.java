@@ -24,6 +24,9 @@ public class NerdFlagsPlugin extends JavaPlugin {
     public StateFlag ALLOW_DROPS;
     public StateFlag ALLOW_MOB_DROPS;
 
+    public StateFlag NETHER_PORTAL;
+    public StateFlag END_PORTAL;
+
     public StateFlag SNOWBALL_FIREFIGHT;
 
     public StateFlag COMPASS;
@@ -74,6 +77,8 @@ public class NerdFlagsPlugin extends JavaPlugin {
 
             ALLOW_DROPS = new StateFlag("allow-drops", true);
             ALLOW_MOB_DROPS = new StateFlag("allow-mob-drops", true);
+            NETHER_PORTAL = new StateFlag("nether-portal", true);
+            END_PORTAL = new StateFlag("end-portal", true);
             SNOWBALL_FIREFIGHT = new StateFlag("snowball-firefight", false);
             COMPASS = new StateFlag("compass", true);
             WEATHER = new StateFlag("weather", false);
@@ -82,6 +87,8 @@ public class NerdFlagsPlugin extends JavaPlugin {
 
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_DROPS);
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_MOB_DROPS);
+            wgCustomFlagsPlugin.addCustomFlag(NETHER_PORTAL);
+            wgCustomFlagsPlugin.addCustomFlag(END_PORTAL);
             wgCustomFlagsPlugin.addCustomFlag(SNOWBALL_FIREFIGHT);
             wgCustomFlagsPlugin.addCustomFlag(WEATHER);
             wgCustomFlagsPlugin.addCustomFlag(COMPASS);

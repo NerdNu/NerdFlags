@@ -4,6 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
@@ -11,17 +12,21 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityPortalEvent;
 import org.bukkit.event.entity.ItemSpawnEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.StateFlag.State;
 
 public class NerdFlagsListener implements Listener {
 
@@ -48,6 +53,22 @@ public class NerdFlagsListener implements Listener {
         ApplicableRegionSet setAtLocation = worldguard.getGlobalRegionManager().get(event.getEntity().getLocation().getWorld()).getApplicableRegions(event.getEntity().getLocation());
         if (!setAtLocation.allows(plugin.ALLOW_MOB_DROPS)) {
             event.getDrops().clear();
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onEntityPortal(EntityPortalEvent event) {
+        Environment fromDimension = event.getFrom().getWorld().getEnvironment();
+        Environment toDimension = event.getTo().getWorld().getEnvironment();
+        ApplicableRegionSet setAtLocation = worldguard.getRegionContainer().get(event.getFrom().getWorld()).getApplicableRegions(event.getFrom());
+        if (fromDimension == Environment.THE_END && toDimension == Environment.NORMAL || toDimension == Environment.THE_END) {
+            if (setAtLocation.queryState(null, plugin.END_PORTAL) == State.DENY) {
+                event.setCancelled(true);
+            }
+        } else {
+            if (setAtLocation.queryState(null, plugin.NETHER_PORTAL) == State.DENY) {
+                event.setCancelled(true);
+            }
         }
     }
 
@@ -154,6 +175,20 @@ public class NerdFlagsListener implements Listener {
             if (!worldguard.getGlobalRegionManager().hasBypass(player, event.getPlayer().getWorld()) && (!setAtLocation.canBuild(player) && !setAtLocation.allows(plugin.COMPASS, player) || !setAtTeleport.canBuild(player) && !setAtTeleport.allows(plugin.COMPASS, player))) {
                 event.setCancelled(true);
                 event.getPlayer().sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onPlayerPortal(PlayerPortalEvent event) {
+        ApplicableRegionSet setAtLocation = worldguard.getRegionContainer().get(event.getFrom().getWorld()).getApplicableRegions(event.getFrom());
+        if (event.getCause() == TeleportCause.END_PORTAL) {
+            if (setAtLocation.queryState(null, plugin.END_PORTAL) == State.DENY) {
+                event.setCancelled(true);
+            }
+        } else if (event.getCause() == TeleportCause.NETHER_PORTAL) {
+            if (setAtLocation.queryState(null, plugin.NETHER_PORTAL) == State.DENY) {
+                event.setCancelled(true);
             }
         }
     }
