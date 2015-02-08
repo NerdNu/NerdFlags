@@ -173,7 +173,7 @@ public class NerdFlagsListener implements Listener {
             ApplicableRegionSet setAtLocation = worldguard.getRegionContainer().get(event.getFrom().getWorld()).getApplicableRegions(event.getFrom());
             ApplicableRegionSet setAtTeleport = worldguard.getRegionContainer().get(event.getTo().getWorld()).getApplicableRegions(event.getTo());
             LocalPlayer player = worldguard.wrapPlayer(event.getPlayer());
-            if (!player.hasPermission("region.bypass." + event.getPlayer().getWorld().getName()) && (!setAtLocation.testState(player, DefaultFlag.BUILD) && !setAtLocation.testState(player, plugin.COMPASS) || !setAtTeleport.testState(player, DefaultFlag.BUILD) && !setAtTeleport.testState(player, plugin.COMPASS))) {
+            if (!player.hasPermission("worldguard.region.bypass." + event.getPlayer().getWorld().getName()) && (!setAtLocation.testState(player, DefaultFlag.BUILD) && !setAtLocation.testState(player, plugin.COMPASS) || !setAtTeleport.testState(player, DefaultFlag.BUILD) && !setAtTeleport.testState(player, plugin.COMPASS))) {
                 event.setCancelled(true);
                 event.getPlayer().sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
             }
@@ -210,7 +210,7 @@ public class NerdFlagsListener implements Listener {
 
     private boolean allows(StateFlag flag, Location location, LocalPlayer player) {
         ApplicableRegionSet set = worldguard.getRegionContainer().get(location.getWorld()).getApplicableRegions(location);
-        return player.hasPermission("region.bypass." + location.getWorld().getName()) || set.testState(player, flag);
+        return player.hasPermission("worldguard.region.bypass." + location.getWorld().getName()) || set.testState(player, flag);
     }
 
     private void cancelEvent(PlayerInteractEvent e, boolean cancel, boolean notifyPlayer) {
