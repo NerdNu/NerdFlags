@@ -210,7 +210,9 @@ public class NerdFlagsListener implements Listener {
 
     private boolean allows(StateFlag flag, Location location, LocalPlayer player) {
         ApplicableRegionSet set = worldguard.getRegionContainer().get(location.getWorld()).getApplicableRegions(location);
-        return player.hasPermission("worldguard.region.bypass." + location.getWorld().getName()) || set.testState(player, flag);
+        return player.hasPermission("worldguard.region.bypass." + location.getWorld().getName())
+                || set.testState(player, DefaultFlag.BUILD)
+                || set.testState(player, flag);
     }
 
     private void cancelEvent(PlayerInteractEvent e, boolean cancel, boolean notifyPlayer) {
