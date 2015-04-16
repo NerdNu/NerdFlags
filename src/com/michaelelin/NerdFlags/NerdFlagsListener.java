@@ -1,5 +1,9 @@
 package com.michaelelin.NerdFlags;
 
+import java.util.Arrays;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
@@ -34,6 +38,10 @@ public class NerdFlagsListener implements Listener {
     private NerdFlagsPlugin plugin;
     private WorldGuardPlugin worldguard;
     private WorldEditPlugin worldedit;
+
+    private final Pattern compassPattern = Pattern.compile("(?i)^/(worldedit:)?/?("
+            + StringUtils.join(Arrays.asList("unstuck", "!", "ascend", "asc", "descend", "desc",
+                    "ceil", "thru", "jumpto", "j", "up"), "|") + ")");
 
     public NerdFlagsListener(NerdFlagsPlugin plugin, WorldGuardPlugin worldguard, WorldEditPlugin worldedit) {
         this.plugin = plugin;
@@ -89,7 +97,7 @@ public class NerdFlagsListener implements Listener {
                     cancelEvent(event, !allows(plugin.USE_DISPENSER, location, player), true);
                     break;
                 case NOTE_BLOCK:
-                    cancelEvent(event, !allows(plugin.USE_NOTE_BLOCK, location, player), true);
+                    cancelEvent(event, !allows(plugin.USE_NOTE_BLOCK, location, player, true), true);
                     break;
                 case WORKBENCH:
                     cancelEvent(event, !allows(plugin.USE_WORKBENCH, location, player), true);
@@ -109,7 +117,7 @@ public class NerdFlagsListener implements Listener {
                     break;
                 case DIODE_BLOCK_OFF:
                 case DIODE_BLOCK_ON:
-                    cancelEvent(event, !allows(plugin.USE_REPEATER, location, player), true, true);
+                    cancelEvent(event, !allows(plugin.USE_REPEATER, location, player, true), true, true);
                     break;
                 case TRAP_DOOR:
                     cancelEvent(event, !allows(plugin.USE_TRAP_DOOR, location, player), true);
@@ -137,7 +145,7 @@ public class NerdFlagsListener implements Listener {
                     break;
                 case REDSTONE_COMPARATOR_OFF:
                 case REDSTONE_COMPARATOR_ON:
-                    cancelEvent(event, !allows(plugin.USE_COMPARATOR, location, player), true, true);
+                    cancelEvent(event, !allows(plugin.USE_COMPARATOR, location, player, true), true, true);
                     break;
                 case HOPPER:
                     cancelEvent(event, !allows(plugin.USE_HOPPER, location, player), true);
@@ -162,7 +170,7 @@ public class NerdFlagsListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
-        if (event.getMessage().equalsIgnoreCase("/jumpto") || event.getMessage().equalsIgnoreCase("/j") || event.getMessage().equalsIgnoreCase("/thru")) {
+        if (compassPattern.matcher(event.getMessage()).matches()) {
             plugin.expectTeleport(event.getPlayer());
         }
     }
@@ -173,7 +181,9 @@ public class NerdFlagsListener implements Listener {
             ApplicableRegionSet setAtLocation = worldguard.getRegionContainer().get(event.getFrom().getWorld()).getApplicableRegions(event.getFrom());
             ApplicableRegionSet setAtTeleport = worldguard.getRegionContainer().get(event.getTo().getWorld()).getApplicableRegions(event.getTo());
             LocalPlayer player = worldguard.wrapPlayer(event.getPlayer());
-            if (!player.hasPermission("worldguard.region.bypass." + event.getPlayer().getWorld().getName()) && (!setAtLocation.testState(player, DefaultFlag.BUILD) && !setAtLocation.testState(player, plugin.COMPASS) || !setAtTeleport.testState(player, DefaultFlag.BUILD) && !setAtTeleport.testState(player, plugin.COMPASS))) {
+            if (!player.hasPermission("worldguard.region.bypass." + event.getPlayer().getWorld().getName())
+                    && !(setAtLocation.testState(player, plugin.COMPASS)
+                            && setAtTeleport.testState(player, plugin.COMPASS))) {
                 event.setCancelled(true);
                 event.getPlayer().sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
             }
@@ -209,9 +219,13 @@ public class NerdFlagsListener implements Listener {
     }
 
     private boolean allows(StateFlag flag, Location location, LocalPlayer player) {
+        return allows(flag, location, player, false);
+    }
+
+    private boolean allows(StateFlag flag, Location location, LocalPlayer player, boolean useBuildFlag) {
         ApplicableRegionSet set = worldguard.getRegionContainer().get(location.getWorld()).getApplicableRegions(location);
         return player.hasPermission("worldguard.region.bypass." + location.getWorld().getName())
-                || set.testState(player, DefaultFlag.BUILD)
+                || (useBuildFlag && set.testState(player, DefaultFlag.BUILD))
                 || set.testState(player, flag);
     }
 
