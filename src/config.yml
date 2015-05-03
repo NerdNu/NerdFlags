@@ -19,3 +19,4 @@ default-anvil: true
 default-comparator: false
 default-hopper: true
 default-dropper: true
+default-daylight-detector: false

@@ -57,6 +57,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
     public StateFlag USE_COMPARATOR;
     public StateFlag USE_HOPPER;
     public StateFlag USE_DROPPER;
+    public StateFlag USE_DAYLIGHT_DETECTOR;
 
     @Override
     public void onEnable() {
@@ -119,6 +120,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
             wgCustomFlagsPlugin.addCustomFlag(USE_COMPARATOR);
             wgCustomFlagsPlugin.addCustomFlag(USE_HOPPER);
             wgCustomFlagsPlugin.addCustomFlag(USE_DROPPER);
+            wgCustomFlagsPlugin.addCustomFlag(USE_DAYLIGHT_DETECTOR);
         }
     }
 
@@ -160,6 +162,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
         USE_COMPARATOR = new StateFlag("use-comparator", getConfig().getBoolean("default-comparator"));
         USE_HOPPER = new StateFlag("use-hopper", getConfig().getBoolean("default-hopper"));
         USE_DROPPER = new StateFlag("use-dropper", getConfig().getBoolean("default-dropper"));
+        USE_DAYLIGHT_DETECTOR = new StateFlag("use-daylight-detector", getConfig().getBoolean("default-daylight-detector"));
     }
 
     public void expectTeleport(Player player) {

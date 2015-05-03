@@ -153,6 +153,9 @@ public class NerdFlagsListener implements Listener {
                 case DROPPER:
                     cancelEvent(event, !allows(plugin.USE_DROPPER, location, player), true);
                     break;
+                case DAYLIGHT_DETECTOR:
+                    cancelEvent(event, !allows(plugin.USE_DAYLIGHT_DETECTOR, location, player, true), true, true);
+                    break;
                 default:
                 }
             }
