@@ -36,6 +36,8 @@ public class NerdFlagsPlugin extends JavaPlugin {
     public StringFlag DATE;
     public StringFlag CREATED_BY;
 
+    public StringFlag ENTRY_COMMANDS;
+
     public StateFlag USE_DISPENSER;
     public StateFlag USE_NOTE_BLOCK;
     public StateFlag USE_WORKBENCH;
@@ -85,6 +87,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
             WEATHER = new StateFlag("weather", false);
             DATE = new StringFlag("date");
             CREATED_BY = new StringFlag("created-by");
+            ENTRY_COMMANDS = new StringFlag("entry-commands");
 
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_DROPS);
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_MOB_DROPS);
@@ -95,6 +98,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
             wgCustomFlagsPlugin.addCustomFlag(COMPASS);
             wgCustomFlagsPlugin.addCustomFlag(DATE);
             wgCustomFlagsPlugin.addCustomFlag(CREATED_BY);
+            wgCustomFlagsPlugin.addCustomFlag(ENTRY_COMMANDS);
 
             saveDefaultConfig();
             loadConfig();

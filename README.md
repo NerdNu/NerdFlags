@@ -1,6 +1,6 @@
 NerdFlags
 =========
-WorldGuard custom flags for the Reddit Public Minecraft servers. Includes [WGCompassFlag](https://github.com/Dumbo52/WGCompassFlag/), [WGDropFlag](https://github.com/Dumbo52/WGDropFlag/), and [WGUseFlags](https://github.com/Dumbo52/WGUseFlags/).
+WorldGuard custom flags for the Reddit Public Minecraft servers.
 
 Available flags:
 
@@ -8,6 +8,7 @@ Available flags:
 |-----------------------|--------|---------------|
 | date                  | String | *N/A*         |
 | created-by            | String | *N/A*         |
+| entry-commands        | String | *N/A*         |
 | weather               | State  | DENY          |
 | compass               | State  | ALLOW         |
 | allow-drops           | State  | ALLOW         |

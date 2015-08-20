@@ -1,6 +1,8 @@
 package com.michaelelin.NerdFlags;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -31,6 +33,12 @@ public class NerdFlagsRegionListener implements Listener {
             } catch (InvocationTargetException e) {
             }
         }
+        String entryCommands = event.getRegion().getFlag(plugin.ENTRY_COMMANDS);
+        if (entryCommands != null) {
+            for (String command : parseCommands(entryCommands)) {
+                plugin.getServer().dispatchCommand(event.getPlayer(), command);
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -44,6 +52,29 @@ public class NerdFlagsRegionListener implements Listener {
             } catch (InvocationTargetException e) {
             }
         }
+    }
+
+    private static List<String> parseCommands(String commands) {
+        List<String> commandList = new LinkedList<String>();
+        StringBuilder curr = new StringBuilder();
+        boolean escape = false;
+        for (char c : commands.toCharArray()) {
+            if (c == '|' && !escape) {
+                commandList.add(curr.toString());
+                curr = new StringBuilder();
+                escape = false;
+            } else if (c == '\\') {
+                if (escape) {
+                    curr.append('\\');
+                }
+                escape = !escape;
+            } else {
+                curr.append(c);
+                escape = false;
+            }
+        }
+        commandList.add(curr.toString());
+        return commandList;
     }
 
 }
