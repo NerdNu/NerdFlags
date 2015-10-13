@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
@@ -33,6 +32,7 @@ import com.sk89q.worldguard.protection.ApplicableRegionSet;
 import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag.State;
+import org.bukkit.projectiles.ProjectileSource;
 
 public class NerdFlagsListener implements Listener {
 
@@ -60,19 +60,19 @@ public class NerdFlagsListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (event.getDamager().getType() == EntityType.PLAYER ||
-                event.getDamager().getType() == EntityType.ARROW && ((Arrow) event.getDamager()).getShooter() instanceof Player) {
-            ApplicableRegionSet setAtLocation = worldguard.getRegionManager(event.getEntity().getWorld()).getApplicableRegions(event.getEntity().getLocation());
-            for (ProtectedRegion region : setAtLocation.getRegions()) {
-                Set<EntityType> protectedTypes = region.getFlag(plugin.PREVENT_PLAYER_ENTITY_TYPES_DAMAGE);
-                if (protectedTypes != null) {
-                    if (protectedTypes.contains(event.getEntityType())) {
-                        event.setCancelled(true);
-                        return;
-                    }
-                }
+        Player player = null;
+        if (event.getDamager().getType() == EntityType.PLAYER) {
+            player = (Player) event.getDamager();
+        } else if (event.getDamager().getType() == EntityType.ARROW) {
+            ProjectileSource source = ((Arrow) event.getDamager()).getShooter();
+            if (source instanceof Player) {
+                player = (Player) source;
             }
-            Set<EntityType> protectedTypes = worldguard.getRegionManager(event.getEntity().getWorld()).getRegion("__global__").getFlag(plugin.PREVENT_PLAYER_ENTITY_TYPES_DAMAGE);
+        }
+        if (player != null) {
+            ApplicableRegionSet setAtLocation = worldguard.getRegionManager(event.getEntity().getWorld()).getApplicableRegions(event.getEntity().getLocation());
+            LocalPlayer localPlayer = worldguard.wrapPlayer(player);
+            Set<EntityType> protectedTypes = setAtLocation.queryValue(localPlayer, plugin.PREVENT_PLAYER_ENTITY_TYPES_DAMAGE);
             if (protectedTypes != null) {
                 if (protectedTypes.contains(event.getEntityType())) {
                     event.setCancelled(true);
