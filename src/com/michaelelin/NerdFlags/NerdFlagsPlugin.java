@@ -24,7 +24,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
     public StateFlag ALLOW_DROPS;
     public StateFlag ALLOW_MOB_DROPS;
 
-    public SetFlag<EntityType> PREVENT_PLAYER_ENTITY_TYPES_DAMAGE;
+    public SetFlag<EntityType> PLAYER_MOB_DAMAGE;
 
     public StateFlag NETHER_PORTAL;
     public StateFlag END_PORTAL;
@@ -83,7 +83,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
             ALLOW_DROPS = new StateFlag("allow-drops", true);
             ALLOW_MOB_DROPS = new StateFlag("allow-mob-drops", true);
             // Using EntityTypeFlag here instead of EnumFlag causes WGCustomFlags to run into some reflection issues
-            PREVENT_PLAYER_ENTITY_TYPES_DAMAGE = new SetFlag<EntityType>("prevent-player-entity-types-damage", new EnumFlag<EntityType>("", EntityType.class));
+            PLAYER_MOB_DAMAGE = new SetFlag<EntityType>("player-mob-damage", new EnumFlag<EntityType>("", EntityType.class));
             NETHER_PORTAL = new StateFlag("nether-portal", true);
             END_PORTAL = new StateFlag("end-portal", true);
             SNOWBALL_FIREFIGHT = new StateFlag("snowball-firefight", false);
@@ -95,7 +95,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
 
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_DROPS);
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_MOB_DROPS);
-            wgCustomFlagsPlugin.addCustomFlag(PREVENT_PLAYER_ENTITY_TYPES_DAMAGE);
+            wgCustomFlagsPlugin.addCustomFlag(PLAYER_MOB_DAMAGE);
             wgCustomFlagsPlugin.addCustomFlag(NETHER_PORTAL);
             wgCustomFlagsPlugin.addCustomFlag(END_PORTAL);
             wgCustomFlagsPlugin.addCustomFlag(SNOWBALL_FIREFIGHT);

@@ -72,7 +72,7 @@ public class NerdFlagsListener implements Listener {
         if (player != null) {
             ApplicableRegionSet setAtLocation = worldguard.getRegionManager(event.getEntity().getWorld()).getApplicableRegions(event.getEntity().getLocation());
             LocalPlayer localPlayer = worldguard.wrapPlayer(player);
-            Set<EntityType> protectedTypes = setAtLocation.queryValue(localPlayer, plugin.PREVENT_PLAYER_ENTITY_TYPES_DAMAGE);
+            Set<EntityType> protectedTypes = setAtLocation.queryValue(localPlayer, plugin.PLAYER_MOB_DAMAGE);
             if (protectedTypes != null) {
                 if (protectedTypes.contains(event.getEntityType())) {
                     event.setCancelled(true);
