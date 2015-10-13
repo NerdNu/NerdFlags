@@ -1,8 +1,10 @@
 package com.michaelelin.NerdFlags;
 
 import java.util.Arrays;
+import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
@@ -10,15 +12,14 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityPortalEvent;
-import org.bukkit.event.entity.ItemSpawnEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
@@ -51,15 +52,38 @@ public class NerdFlagsListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onItemSpawn(ItemSpawnEvent event) {
-        ApplicableRegionSet setAtLocation = worldguard.getRegionContainer().get(event.getLocation().getWorld()).getApplicableRegions(event.getLocation());
+        ApplicableRegionSet setAtLocation = worldguard.getRegionManager(event.getLocation().getWorld()).getApplicableRegions(event.getLocation());
         if (!setAtLocation.testState(null, plugin.ALLOW_DROPS)) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (event.getDamager().getType() == EntityType.PLAYER ||
+                event.getDamager().getType() == EntityType.ARROW && ((Arrow) event.getDamager()).getShooter() instanceof Player) {
+            ApplicableRegionSet setAtLocation = worldguard.getRegionManager(event.getEntity().getWorld()).getApplicableRegions(event.getEntity().getLocation());
+            for (ProtectedRegion region : setAtLocation.getRegions()) {
+                Set<EntityType> protectedTypes = region.getFlag(plugin.PREVENT_PLAYER_ENTITY_TYPES_DAMAGE);
+                if (protectedTypes != null) {
+                    if (protectedTypes.contains(event.getEntityType())) {
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+            }
+            Set<EntityType> protectedTypes = worldguard.getRegionManager(event.getEntity().getWorld()).getRegion("__global__").getFlag(plugin.PREVENT_PLAYER_ENTITY_TYPES_DAMAGE);
+            if (protectedTypes != null) {
+                if (protectedTypes.contains(event.getEntityType())) {
+                    event.setCancelled(true);
+                }
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event) {
-        ApplicableRegionSet setAtLocation = worldguard.getRegionContainer().get(event.getEntity().getLocation().getWorld()).getApplicableRegions(event.getEntity().getLocation());
+        ApplicableRegionSet setAtLocation = worldguard.getRegionManager(event.getEntity().getLocation().getWorld()).getApplicableRegions(event.getEntity().getLocation());
         if (!setAtLocation.testState(null, plugin.ALLOW_MOB_DROPS)) {
             event.getDrops().clear();
         }
@@ -69,7 +93,7 @@ public class NerdFlagsListener implements Listener {
     public void onEntityPortal(EntityPortalEvent event) {
         Environment fromDimension = event.getFrom().getWorld().getEnvironment();
         Environment toDimension = event.getTo().getWorld().getEnvironment();
-        ApplicableRegionSet setAtLocation = worldguard.getRegionContainer().get(event.getFrom().getWorld()).getApplicableRegions(event.getFrom());
+        ApplicableRegionSet setAtLocation = worldguard.getRegionManager(event.getFrom().getWorld()).getApplicableRegions(event.getFrom());
         if (fromDimension == Environment.THE_END && toDimension == Environment.NORMAL || toDimension == Environment.THE_END) {
             if (setAtLocation.queryState(null, plugin.END_PORTAL) == State.DENY) {
                 event.setCancelled(true);
@@ -181,8 +205,8 @@ public class NerdFlagsListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         if (plugin.hasCompassed(event.getPlayer())) {
-            ApplicableRegionSet setAtLocation = worldguard.getRegionContainer().get(event.getFrom().getWorld()).getApplicableRegions(event.getFrom());
-            ApplicableRegionSet setAtTeleport = worldguard.getRegionContainer().get(event.getTo().getWorld()).getApplicableRegions(event.getTo());
+            ApplicableRegionSet setAtLocation = worldguard.getRegionManager(event.getFrom().getWorld()).getApplicableRegions(event.getFrom());
+            ApplicableRegionSet setAtTeleport = worldguard.getRegionManager(event.getTo().getWorld()).getApplicableRegions(event.getTo());
             LocalPlayer player = worldguard.wrapPlayer(event.getPlayer());
             if (!player.hasPermission("worldguard.region.bypass." + event.getPlayer().getWorld().getName())
                     && !(setAtLocation.testState(player, plugin.COMPASS)
@@ -195,7 +219,7 @@ public class NerdFlagsListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerPortal(PlayerPortalEvent event) {
-        ApplicableRegionSet setAtLocation = worldguard.getRegionContainer().get(event.getFrom().getWorld()).getApplicableRegions(event.getFrom());
+        ApplicableRegionSet setAtLocation = worldguard.getRegionManager(event.getFrom().getWorld()).getApplicableRegions(event.getFrom());
         if (event.getCause() == TeleportCause.END_PORTAL) {
             if (setAtLocation.queryState(null, plugin.END_PORTAL) == State.DENY) {
                 event.setCancelled(true);
@@ -212,7 +236,7 @@ public class NerdFlagsListener implements Listener {
         if (event.getEntityType() == EntityType.SNOWBALL) {
             Block b = event.getEntity().getLocation().getBlock();
             if (b.getType() == Material.FIRE) {
-                ApplicableRegionSet setAtLocation = worldguard.getRegionContainer().get(b.getWorld()).getApplicableRegions(b.getLocation());
+                ApplicableRegionSet setAtLocation = worldguard.getRegionManager(b.getWorld()).getApplicableRegions(b.getLocation());
                 if (setAtLocation.queryState(null, plugin.SNOWBALL_FIREFIGHT) == State.ALLOW) {
                     b.setType(Material.AIR);
                     b.getWorld().playEffect(b.getLocation(), Effect.EXTINGUISH, 0);
@@ -226,7 +250,7 @@ public class NerdFlagsListener implements Listener {
     }
 
     private boolean allows(StateFlag flag, Location location, LocalPlayer player, boolean useBuildFlag) {
-        ApplicableRegionSet set = worldguard.getRegionContainer().get(location.getWorld()).getApplicableRegions(location);
+        ApplicableRegionSet set = worldguard.getRegionManager(location.getWorld()).getApplicableRegions(location);
         return player.hasPermission("worldguard.region.bypass." + location.getWorld().getName())
                 || (useBuildFlag && set.testState(player, DefaultFlag.BUILD))
                 || set.testState(player, flag);

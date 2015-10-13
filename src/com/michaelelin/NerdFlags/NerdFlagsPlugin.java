@@ -1,5 +1,7 @@
 package com.michaelelin.NerdFlags;
 
+import com.sk89q.worldguard.protection.flags.*;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -9,8 +11,6 @@ import com.comphenix.protocol.ProtocolManager;
 import com.mewin.WGCustomFlags.WGCustomFlagsPlugin;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.flags.StateFlag;
-import com.sk89q.worldguard.protection.flags.StringFlag;
 
 public class NerdFlagsPlugin extends JavaPlugin {
 
@@ -23,6 +23,8 @@ public class NerdFlagsPlugin extends JavaPlugin {
 
     public StateFlag ALLOW_DROPS;
     public StateFlag ALLOW_MOB_DROPS;
+
+    public SetFlag<EntityType> PREVENT_PLAYER_ENTITY_TYPES_DAMAGE;
 
     public StateFlag NETHER_PORTAL;
     public StateFlag END_PORTAL;
@@ -80,6 +82,8 @@ public class NerdFlagsPlugin extends JavaPlugin {
 
             ALLOW_DROPS = new StateFlag("allow-drops", true);
             ALLOW_MOB_DROPS = new StateFlag("allow-mob-drops", true);
+            // Using EntityTypeFlag here instead of EnumFlag causes WGCustomFlags to run into some reflection issues
+            PREVENT_PLAYER_ENTITY_TYPES_DAMAGE = new SetFlag<EntityType>("prevent-player-entity-types-damage", new EnumFlag<EntityType>("", EntityType.class));
             NETHER_PORTAL = new StateFlag("nether-portal", true);
             END_PORTAL = new StateFlag("end-portal", true);
             SNOWBALL_FIREFIGHT = new StateFlag("snowball-firefight", false);
@@ -91,6 +95,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
 
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_DROPS);
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_MOB_DROPS);
+            wgCustomFlagsPlugin.addCustomFlag(PREVENT_PLAYER_ENTITY_TYPES_DAMAGE);
             wgCustomFlagsPlugin.addCustomFlag(NETHER_PORTAL);
             wgCustomFlagsPlugin.addCustomFlag(END_PORTAL);
             wgCustomFlagsPlugin.addCustomFlag(SNOWBALL_FIREFIGHT);
