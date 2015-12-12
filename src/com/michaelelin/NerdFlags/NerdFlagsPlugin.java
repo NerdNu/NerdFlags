@@ -1,5 +1,6 @@
 package com.michaelelin.NerdFlags;
 
+import com.mewin.WGCustomFlags.flags.CustomLocationFlag;
 import com.sk89q.worldguard.protection.flags.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -39,6 +40,8 @@ public class NerdFlagsPlugin extends JavaPlugin {
     public StringFlag CREATED_BY;
 
     public StringFlag ENTRY_COMMANDS;
+
+    public CustomLocationFlag WARP;
 
     public StateFlag USE_DISPENSER;
     public StateFlag USE_NOTE_BLOCK;
@@ -92,6 +95,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
             DATE = new StringFlag("date");
             CREATED_BY = new StringFlag("created-by");
             ENTRY_COMMANDS = new StringFlag("entry-commands");
+            WARP = new CustomLocationFlag("warp");
 
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_DROPS);
             wgCustomFlagsPlugin.addCustomFlag(ALLOW_MOB_DROPS);
@@ -104,6 +108,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
             wgCustomFlagsPlugin.addCustomFlag(DATE);
             wgCustomFlagsPlugin.addCustomFlag(CREATED_BY);
             wgCustomFlagsPlugin.addCustomFlag(ENTRY_COMMANDS);
+            wgCustomFlagsPlugin.addCustomFlag(WARP);
 
             saveDefaultConfig();
             loadConfig();

@@ -17,6 +17,7 @@ Available flags:
 | nether-portal         | State                 | ALLOW         |
 | end-portal            | State                 | ALLOW         |
 | snowball-firefight    | State                 | DENY          |
+| warp                  | Location              | *N/A*         |
 | use-dispenser         | State                 | ALLOW         |
 | use-note-block        | State                 | DENY          |
 | use-workbench         | State                 | ALLOW         |

@@ -5,5 +5,7 @@ lib
 .classpath
 
 .project
+*.iml
+.idea
 
 .settings

@@ -4,6 +4,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.sk89q.worldedit.Vector;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -34,10 +40,19 @@ public class NerdFlagsRegionListener implements Listener {
             }
         }
         String entryCommands = event.getRegion().getFlag(plugin.ENTRY_COMMANDS);
+        com.sk89q.worldedit.Location warp = event.getRegion().getFlag(plugin.WARP);
         if (entryCommands != null) {
             for (String command : parseCommands(entryCommands)) {
                 plugin.getServer().dispatchCommand(event.getPlayer(), command);
             }
+        }
+        if (warp != null) {
+            Player player = event.getPlayer();
+            Vector vec = warp.getPosition();
+            World world = Bukkit.getWorld(warp.getWorld().getName());
+            Location loc = new Location(world, vec.getX(), vec.getY(), vec.getZ(), player.getLocation().getYaw(), player.getLocation().getPitch());
+            player.teleport(loc);
+            player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1f, 1f);
         }
     }
 

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.michaelelin</groupId>
     <artifactId>NerdFlags</artifactId>
-    <version>0.1.5</version>
+    <version>0.1.6</version>
     <build>
         <sourceDirectory>${basedir}/src</sourceDirectory>
         <resources>
@@ -30,8 +30,8 @@
     </build>
     <repositories>
         <repository>
-            <id>bukkit-repo</id>
-            <url>http://repo.bukkit.org/content/groups/public/</url>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
         <repository>
             <id>sk89q-repo</id>
@@ -51,7 +51,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.7.9-R0.2</version>
+            <version>1.8.7-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
@@ -61,7 +61,7 @@
         <dependency>
             <groupId>com.mewin</groupId>
             <artifactId>WGCustomFlags</artifactId>
-            <version>1.7.1</version>
+            <version>1.8.1-beta</version>
         </dependency>
         <dependency>
             <groupId>com.mewin</groupId>
