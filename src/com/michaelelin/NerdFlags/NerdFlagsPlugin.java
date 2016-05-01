@@ -1,6 +1,5 @@
 package com.michaelelin.NerdFlags;
 
-import com.mewin.WGCustomFlags.flags.CustomLocationFlag;
 import com.sk89q.worldguard.protection.flags.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -9,11 +8,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
-import com.mewin.WGCustomFlags.WGCustomFlagsPlugin;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.flags.CustomFlagBroker;
+import com.sk89q.worldguard.protection.flags.CustomFlagProvider;
+import com.sk89q.worldguard.protection.flags.StateFlag;
 
-public class NerdFlagsPlugin extends JavaPlugin {
+public class NerdFlagsPlugin extends JavaPlugin implements CustomFlagProvider {
 
     private NerdFlagsListener listener;
     private NerdFlagsRegionListener regionListener;
@@ -41,7 +42,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
 
     public StringFlag ENTRY_COMMANDS;
 
-    public CustomLocationFlag WARP;
+    //public CustomLocationFlag WARP;
 
     public StateFlag USE_DISPENSER;
     public StateFlag USE_NOTE_BLOCK;
@@ -78,64 +79,9 @@ public class NerdFlagsPlugin extends JavaPlugin {
             getServer().getPluginManager().registerEvents(regionListener, this);
         }
 
-        if (checkPlugin("WGCustomFlags", true) && checkPlugin("WorldGuard", true) && checkPlugin("WorldEdit", true)) {
-            WGCustomFlagsPlugin wgCustomFlagsPlugin = getPlugin("WGCustomFlags", WGCustomFlagsPlugin.class);
-            listener = new NerdFlagsListener(this, getPlugin("WorldGuard", WorldGuardPlugin.class), getPlugin("WorldEdit", WorldEditPlugin.class));
-            getServer().getPluginManager().registerEvents(listener, this);
+        listener = new NerdFlagsListener(this, getPlugin("WorldGuard", WorldGuardPlugin.class), getPlugin("WorldEdit", WorldEditPlugin.class));
+        getServer().getPluginManager().registerEvents(listener, this);
 
-            ALLOW_DROPS = new StateFlag("allow-drops", true);
-            ALLOW_MOB_DROPS = new StateFlag("allow-mob-drops", true);
-            // Using EntityTypeFlag here instead of EnumFlag causes WGCustomFlags to run into some reflection issues
-            PLAYER_MOB_DAMAGE = new SetFlag<EntityType>("player-mob-damage", new EnumFlag<EntityType>("", EntityType.class));
-            NETHER_PORTAL = new StateFlag("nether-portal", true);
-            END_PORTAL = new StateFlag("end-portal", true);
-            SNOWBALL_FIREFIGHT = new StateFlag("snowball-firefight", false);
-            COMPASS = new StateFlag("compass", true);
-            WEATHER = new StateFlag("weather", false);
-            DATE = new StringFlag("date");
-            CREATED_BY = new StringFlag("created-by");
-            ENTRY_COMMANDS = new StringFlag("entry-commands");
-            WARP = new CustomLocationFlag("warp");
-
-            wgCustomFlagsPlugin.addCustomFlag(ALLOW_DROPS);
-            wgCustomFlagsPlugin.addCustomFlag(ALLOW_MOB_DROPS);
-            wgCustomFlagsPlugin.addCustomFlag(PLAYER_MOB_DAMAGE);
-            wgCustomFlagsPlugin.addCustomFlag(NETHER_PORTAL);
-            wgCustomFlagsPlugin.addCustomFlag(END_PORTAL);
-            wgCustomFlagsPlugin.addCustomFlag(SNOWBALL_FIREFIGHT);
-            wgCustomFlagsPlugin.addCustomFlag(WEATHER);
-            wgCustomFlagsPlugin.addCustomFlag(COMPASS);
-            wgCustomFlagsPlugin.addCustomFlag(DATE);
-            wgCustomFlagsPlugin.addCustomFlag(CREATED_BY);
-            wgCustomFlagsPlugin.addCustomFlag(ENTRY_COMMANDS);
-            wgCustomFlagsPlugin.addCustomFlag(WARP);
-
-            saveDefaultConfig();
-            loadConfig();
-
-            wgCustomFlagsPlugin.addCustomFlag(USE_DISPENSER);
-            wgCustomFlagsPlugin.addCustomFlag(USE_NOTE_BLOCK);
-            wgCustomFlagsPlugin.addCustomFlag(USE_WORKBENCH);
-            wgCustomFlagsPlugin.addCustomFlag(USE_DOOR);
-            wgCustomFlagsPlugin.addCustomFlag(USE_LEVER);
-            wgCustomFlagsPlugin.addCustomFlag(USE_PRESSURE_PLATE);
-            wgCustomFlagsPlugin.addCustomFlag(USE_BUTTON);
-            wgCustomFlagsPlugin.addCustomFlag(USE_JUKEBOX);
-            wgCustomFlagsPlugin.addCustomFlag(USE_REPEATER);
-            wgCustomFlagsPlugin.addCustomFlag(USE_TRAP_DOOR);
-            wgCustomFlagsPlugin.addCustomFlag(USE_FENCE_GATE);
-            wgCustomFlagsPlugin.addCustomFlag(USE_BREWING_STAND);
-            wgCustomFlagsPlugin.addCustomFlag(USE_CAULDRON);
-            wgCustomFlagsPlugin.addCustomFlag(USE_ENCHANTMENT_TABLE);
-            wgCustomFlagsPlugin.addCustomFlag(USE_ENDER_CHEST);
-            wgCustomFlagsPlugin.addCustomFlag(USE_TRIPWIRE);
-            wgCustomFlagsPlugin.addCustomFlag(USE_BEACON);
-            wgCustomFlagsPlugin.addCustomFlag(USE_ANVIL);
-            wgCustomFlagsPlugin.addCustomFlag(USE_COMPARATOR);
-            wgCustomFlagsPlugin.addCustomFlag(USE_HOPPER);
-            wgCustomFlagsPlugin.addCustomFlag(USE_DROPPER);
-            wgCustomFlagsPlugin.addCustomFlag(USE_DAYLIGHT_DETECTOR);
-        }
     }
 
     private <T extends Plugin> boolean checkPlugin(String name, boolean required) {
@@ -154,31 +100,6 @@ public class NerdFlagsPlugin extends JavaPlugin {
         return mainClass.cast(getServer().getPluginManager().getPlugin(name));
     }
 
-    private void loadConfig() {
-        USE_DISPENSER = new StateFlag("use-dispenser", getConfig().getBoolean("default-dispenser"));
-        USE_NOTE_BLOCK = new StateFlag("use-note-block", getConfig().getBoolean("default-note-block"));
-        USE_WORKBENCH = new StateFlag("use-workbench", getConfig().getBoolean("default-workbench"));
-        USE_DOOR = new StateFlag("use-door", getConfig().getBoolean("default-door"));
-        USE_LEVER = new StateFlag("use-lever", getConfig().getBoolean("default-lever"));
-        USE_PRESSURE_PLATE = new StateFlag("use-pressure-plate", getConfig().getBoolean("default-pressure-plate"));
-        USE_BUTTON = new StateFlag("use-button", getConfig().getBoolean("default-button"));
-        USE_JUKEBOX = new StateFlag("use-jukebox", getConfig().getBoolean("default-jukebox"));
-        USE_REPEATER = new StateFlag("use-repeater", getConfig().getBoolean("default-repeater"));
-        USE_TRAP_DOOR = new StateFlag("use-trap-door", getConfig().getBoolean("default-trap-door"));
-        USE_FENCE_GATE = new StateFlag("use-fence-gate", getConfig().getBoolean("default-fence-gate"));
-        USE_BREWING_STAND = new StateFlag("use-brewing-stand", getConfig().getBoolean("default-brewing-stand"));
-        USE_CAULDRON = new StateFlag("use-cauldron", getConfig().getBoolean("default-cauldron"));
-        USE_ENCHANTMENT_TABLE = new StateFlag("use-enchantment-table", getConfig().getBoolean("default-enchantment-table"));
-        USE_ENDER_CHEST = new StateFlag("use-ender-chest", getConfig().getBoolean("default-ender-chest"));
-        USE_TRIPWIRE = new StateFlag("use-tripwire", getConfig().getBoolean("default-tripwire"));
-        USE_BEACON = new StateFlag("use-beacon", getConfig().getBoolean("default-beacon"));
-        USE_ANVIL = new StateFlag("use-anvil", getConfig().getBoolean("default-anvil"));
-        USE_COMPARATOR = new StateFlag("use-comparator", getConfig().getBoolean("default-comparator"));
-        USE_HOPPER = new StateFlag("use-hopper", getConfig().getBoolean("default-hopper"));
-        USE_DROPPER = new StateFlag("use-dropper", getConfig().getBoolean("default-dropper"));
-        USE_DAYLIGHT_DETECTOR = new StateFlag("use-daylight-detector", getConfig().getBoolean("default-daylight-detector"));
-    }
-
     public void expectTeleport(Player player) {
         this.nextTP = player;
         this.timestamp = player.getPlayerTime();
@@ -186,6 +107,120 @@ public class NerdFlagsPlugin extends JavaPlugin {
 
     public boolean hasCompassed(Player player) {
         return this.nextTP == player && this.timestamp == player.getPlayerTime();
+    }
+
+    /**
+     * This is a call back from WorldGuard. It could be called at any time after onLaod(), even
+     * before onEnable()!!!
+     */
+    @Override
+    public void addCustomFlags(CustomFlagBroker broker) {
+        ALLOW_DROPS = new StateFlag("allow-drops", true);
+        broker.addFlag(ALLOW_DROPS);
+        
+        ALLOW_MOB_DROPS = new StateFlag("allow-mob-drops", true);
+        broker.addFlag(ALLOW_MOB_DROPS);
+        
+        // Using EntityTypeFlag here instead of EnumFlag causes WGCustomFlags to run into some reflection issues
+        PLAYER_MOB_DAMAGE = new SetFlag<EntityType>("player-mob-damage", new EnumFlag<EntityType>("", EntityType.class));
+        broker.addFlag(PLAYER_MOB_DAMAGE);
+        
+        NETHER_PORTAL = new StateFlag("nether-portal", true);
+        broker.addFlag(NETHER_PORTAL);
+        
+        END_PORTAL = new StateFlag("end-portal", true);
+        broker.addFlag(END_PORTAL);
+        
+        SNOWBALL_FIREFIGHT = new StateFlag("snowball-firefight", false);
+        broker.addFlag(SNOWBALL_FIREFIGHT);
+        
+        COMPASS = new StateFlag("compass", true);
+        broker.addFlag(COMPASS);
+        
+        WEATHER = new StateFlag("weather", false);
+        broker.addFlag(WEATHER);
+        
+        DATE = new StringFlag("date");
+        broker.addFlag(DATE);
+        
+        CREATED_BY = new StringFlag("created-by");
+        broker.addFlag(CREATED_BY);
+        
+        ENTRY_COMMANDS = new StringFlag("entry-commands");
+        broker.addFlag(ENTRY_COMMANDS);
+
+        // TODO: Fix this
+        //WARP = new CustomLocationFlag("warp");
+        //broker.addFlag(WARP);
+        
+        saveDefaultConfig();
+        
+        USE_DISPENSER = new StateFlag("use-dispenser", getConfig().getBoolean("default-dispenser"));
+        broker.addFlag(USE_DISPENSER);
+        
+        USE_NOTE_BLOCK = new StateFlag("use-note-block", getConfig().getBoolean("default-note-block"));
+        broker.addFlag(USE_NOTE_BLOCK);
+        
+        USE_WORKBENCH = new StateFlag("use-workbench", getConfig().getBoolean("default-workbench"));
+        broker.addFlag(USE_WORKBENCH);
+        
+        USE_DOOR = new StateFlag("use-door", getConfig().getBoolean("default-door"));
+        broker.addFlag(USE_DOOR);
+        
+        USE_LEVER = new StateFlag("use-lever", getConfig().getBoolean("default-lever"));
+        broker.addFlag(USE_LEVER);
+        
+        USE_PRESSURE_PLATE = new StateFlag("use-pressure-plate", getConfig().getBoolean("default-pressure-plate"));
+        broker.addFlag(USE_PRESSURE_PLATE);
+        
+        USE_BUTTON = new StateFlag("use-button", getConfig().getBoolean("default-button"));
+        broker.addFlag(USE_BUTTON);
+        
+        USE_JUKEBOX = new StateFlag("use-jukebox", getConfig().getBoolean("default-jukebox"));
+        broker.addFlag(USE_JUKEBOX);
+        
+        USE_REPEATER = new StateFlag("use-repeater", getConfig().getBoolean("default-repeater"));
+        broker.addFlag(USE_REPEATER);
+        
+        USE_TRAP_DOOR = new StateFlag("use-trap-door", getConfig().getBoolean("default-trap-door"));
+        broker.addFlag(USE_TRAP_DOOR);
+        
+        USE_FENCE_GATE = new StateFlag("use-fence-gate", getConfig().getBoolean("default-fence-gate"));
+        broker.addFlag(USE_FENCE_GATE);
+        
+        USE_BREWING_STAND = new StateFlag("use-brewing-stand", getConfig().getBoolean("default-brewing-stand"));
+        broker.addFlag(USE_BREWING_STAND);
+        
+        USE_CAULDRON = new StateFlag("use-cauldron", getConfig().getBoolean("default-cauldron"));
+        broker.addFlag(USE_CAULDRON);
+        
+        USE_ENCHANTMENT_TABLE = new StateFlag("use-enchantment-table", getConfig().getBoolean("default-enchantment-table"));
+        broker.addFlag(USE_ENCHANTMENT_TABLE);
+        
+        USE_ENDER_CHEST = new StateFlag("use-ender-chest", getConfig().getBoolean("default-ender-chest"));
+        broker.addFlag(USE_ENDER_CHEST);
+        
+        USE_TRIPWIRE = new StateFlag("use-tripwire", getConfig().getBoolean("default-tripwire"));
+        broker.addFlag(USE_TRIPWIRE);
+        
+        USE_BEACON = new StateFlag("use-beacon", getConfig().getBoolean("default-beacon"));
+        broker.addFlag(USE_BEACON);
+        
+        USE_ANVIL = new StateFlag("use-anvil", getConfig().getBoolean("default-anvil"));
+        broker.addFlag(USE_ANVIL);
+        
+        USE_COMPARATOR = new StateFlag("use-comparator", getConfig().getBoolean("default-comparator"));
+        broker.addFlag(USE_COMPARATOR);
+        
+        USE_HOPPER = new StateFlag("use-hopper", getConfig().getBoolean("default-hopper"));
+        broker.addFlag(USE_HOPPER);
+        
+        USE_DROPPER = new StateFlag("use-dropper", getConfig().getBoolean("default-dropper"));
+        broker.addFlag(USE_DROPPER);
+        
+        USE_DAYLIGHT_DETECTOR = new StateFlag("use-daylight-detector", getConfig().getBoolean("default-daylight-detector"));
+        broker.addFlag(USE_DAYLIGHT_DETECTOR);
+        
     }
 
 }

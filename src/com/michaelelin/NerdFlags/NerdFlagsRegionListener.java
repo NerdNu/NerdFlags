@@ -39,13 +39,16 @@ public class NerdFlagsRegionListener implements Listener {
             } catch (InvocationTargetException e) {
             }
         }
+
         String entryCommands = event.getRegion().getFlag(plugin.ENTRY_COMMANDS);
-        com.sk89q.worldedit.Location warp = event.getRegion().getFlag(plugin.WARP);
         if (entryCommands != null) {
             for (String command : parseCommands(entryCommands)) {
                 plugin.getServer().dispatchCommand(event.getPlayer(), command);
             }
         }
+
+        /* TODO: Fix warp
+        com.sk89q.worldedit.Location warp = event.getRegion().getFlag(plugin.WARP);
         if (warp != null) {
             Player player = event.getPlayer();
             Vector vec = warp.getPosition();
@@ -54,6 +57,7 @@ public class NerdFlagsRegionListener implements Listener {
             player.teleport(loc);
             player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1f, 1f);
         }
+        */
     }
 
     @EventHandler(priority = EventPriority.HIGH)

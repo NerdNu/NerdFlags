@@ -4,6 +4,6 @@ version: ${project.version}
 description: ${project.description}
 website: ${project.url}
 database: false
-depend: [WorldGuard, WorldEdit, WGCustomFlags]
+depend: [WorldGuard, WorldEdit]
 softdepend: [ProtocolLib, WGRegionEvents]
-authors: [Dumbo52]
+authors: [Dumbo52, Challenger2, Redwall_HP]
