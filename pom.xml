@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.michaelelin</groupId>
     <artifactId>NerdFlags</artifactId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
     <url>https://github.com/NerdNu/NerdFlags</url>
     <build>
         <sourceDirectory>${basedir}/src</sourceDirectory>
