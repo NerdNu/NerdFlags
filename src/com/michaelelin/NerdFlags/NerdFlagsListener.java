@@ -1,7 +1,6 @@
 package com.michaelelin.NerdFlags;
 
 import java.util.Arrays;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
@@ -71,12 +70,8 @@ public class NerdFlagsListener implements Listener {
         }
         if (player != null) {
             ApplicableRegionSet setAtLocation = worldguard.getRegionManager(event.getEntity().getWorld()).getApplicableRegions(event.getEntity().getLocation());
-            LocalPlayer localPlayer = worldguard.wrapPlayer(player);
-            Set<EntityType> protectedTypes = setAtLocation.queryValue(localPlayer, plugin.PLAYER_MOB_DAMAGE);
-            if (protectedTypes != null) {
-                if (protectedTypes.contains(event.getEntityType())) {
+            if (!setAtLocation.testState(null, plugin.PLAYER_MOB_DAMAGE)) {
                     event.setCancelled(true);
-                }
             }
         }
     }

@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.michaelelin</groupId>
     <artifactId>NerdFlags</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
     <url>https://github.com/NerdNu/NerdFlags</url>
     <build>
         <sourceDirectory>${basedir}/src</sourceDirectory>
@@ -32,7 +32,7 @@
     <repositories>
         <repository>
             <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots</url>
+            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
         <repository>
             <id>comphenix-repo</id>
@@ -46,8 +46,8 @@
     <dependencies>
         <dependency>
                <groupId>org.spigotmc</groupId>
-               <artifactId>spigot-api</artifactId>
-               <version>1.9.2-R0.1-SNAPSHOT</version>
+               <artifactId>spigot</artifactId>
+               <version>1.10.2-R0.1-SNAPSHOT</version>
                <scope>provided</scope>
         </dependency>
         <dependency>
@@ -58,17 +58,17 @@
         <dependency>
             <groupId>com.mewin</groupId>
             <artifactId>WGRegionEvents</artifactId>
-            <version>1.3</version>
+            <version>1.2.1</version>
         </dependency>
         <dependency>
-            <groupId>com.sk89q</groupId>
-            <artifactId>worldguard</artifactId>
-            <version>6.1.2-SNAPSHOT;9cae829</version>
+            <groupId>com.sk89q.worldguard</groupId>
+            <artifactId>worldguard-legacy</artifactId>
+            <version>6.1.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
-            <version>6.1.1-SNAPSHOT</version>
+            <version>6.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
