@@ -48,7 +48,7 @@ The `WGRegionEvents` plugin doesn't currently have an active Maven repository.
 So it is compiled and installed in the local repository as follows:
 ```
 git clone https://github.com/mewin/WorldGuard-Region-Events
-cd WorldGuardRegion-Events
+cd WorldGuard-Region-Events
 mvn clean package
 mvn install:install-file -DgroupId=com.mewin -DartifactId=WGRegionEvents -Dpackaging=jar \
     -Dfile=target/WGRegionEvents-1.2.1.jar -Dversion=1.2.1
