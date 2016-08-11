@@ -6,6 +6,7 @@
     <version>0.4.0</version>
     <url>https://github.com/NerdNu/NerdFlags</url>
     <build>
+        <defaultGoal>clean package</defaultGoal>
         <sourceDirectory>${basedir}/src</sourceDirectory>
         <resources>
             <resource>
@@ -40,15 +41,15 @@
         </repository>
         <repository>
             <id>sk89q</id>
-            <url>https://maven.sk89q.com/repo</url>
+            <url>http://maven.sk89q.com/repo</url>
         </repository>
     </repositories>
     <dependencies>
         <dependency>
-               <groupId>org.spigotmc</groupId>
-               <artifactId>spigot</artifactId>
-               <version>1.10.2-R0.1-SNAPSHOT</version>
-               <scope>provided</scope>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.10.2-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
@@ -68,7 +69,7 @@
         <dependency>
             <groupId>com.sk89q.worldedit</groupId>
             <artifactId>worldedit-bukkit</artifactId>
-            <version>6.0.0-SNAPSHOT</version>
+            <version>6.1.4-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
