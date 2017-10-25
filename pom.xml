@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.michaelelin</groupId>
     <artifactId>NerdFlags</artifactId>
-    <version>0.4.0</version>
+    <version>0.4.1</version>
     <url>https://github.com/NerdNu/NerdFlags</url>
     <build>
         <defaultGoal>clean package</defaultGoal>
@@ -33,11 +33,11 @@
     <repositories>
         <repository>
             <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
         <repository>
-            <id>comphenix-repo</id>
-            <url>http://repo.comphenix.com/content/groups/public</url>
+            <id>dmulloy2-repo</id>
+            <url>http://repo.dmulloy2.net/content/groups/public/</url>
         </repository>
         <repository>
             <id>sk89q</id>
@@ -48,13 +48,13 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.10.2-R0.1-SNAPSHOT</version>
+            <version>1.12.2-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib</artifactId>
-            <version>3.4.0</version>
+            <version>4.3.0</version>
         </dependency>
         <dependency>
             <groupId>com.mewin</groupId>

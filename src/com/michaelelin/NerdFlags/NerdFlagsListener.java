@@ -3,34 +3,36 @@ package com.michaelelin.NerdFlags;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
+import com.sk89q.worldguard.bukkit.RegionQuery;
+import com.sk89q.worldguard.protection.association.RegionAssociable;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
-import com.sk89q.worldguard.protection.flags.StateFlag.State;
 import org.bukkit.projectiles.ProjectileSource;
 
 public class NerdFlagsListener implements Listener {
@@ -51,8 +53,8 @@ public class NerdFlagsListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onItemSpawn(ItemSpawnEvent event) {
-        ApplicableRegionSet setAtLocation = worldguard.getRegionManager(event.getLocation().getWorld()).getApplicableRegions(event.getLocation());
-        if (!setAtLocation.testState(null, plugin.ALLOW_DROPS)) {
+        boolean canDrop = testState(event.getLocation(), plugin.ALLOW_DROPS);
+        if (!canDrop) {
             event.setCancelled(true);
         }
     }
@@ -69,8 +71,8 @@ public class NerdFlagsListener implements Listener {
             }
         }
         if (player != null) {
-            ApplicableRegionSet setAtLocation = worldguard.getRegionManager(event.getEntity().getWorld()).getApplicableRegions(event.getEntity().getLocation());
-            if (!setAtLocation.testState(null, plugin.PLAYER_MOB_DAMAGE)) {
+            boolean canDamage = testState(event.getEntity(), plugin.PLAYER_MOB_DAMAGE);
+            if (!canDamage) {
                     event.setCancelled(true);
             }
         }
@@ -78,8 +80,8 @@ public class NerdFlagsListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event) {
-        ApplicableRegionSet setAtLocation = worldguard.getRegionManager(event.getEntity().getLocation().getWorld()).getApplicableRegions(event.getEntity().getLocation());
-        if (!setAtLocation.testState(null, plugin.ALLOW_MOB_DROPS)) {
+        boolean canDrop = testState(event.getEntity(), plugin.ALLOW_MOB_DROPS);
+        if (!canDrop) {
             event.getDrops().clear();
         }
     }
@@ -88,13 +90,14 @@ public class NerdFlagsListener implements Listener {
     public void onEntityPortal(EntityPortalEvent event) {
         Environment fromDimension = event.getFrom().getWorld().getEnvironment();
         Environment toDimension = event.getTo().getWorld().getEnvironment();
-        ApplicableRegionSet setAtLocation = worldguard.getRegionManager(event.getFrom().getWorld()).getApplicableRegions(event.getFrom());
         if (fromDimension == Environment.THE_END && toDimension == Environment.NORMAL || toDimension == Environment.THE_END) {
-            if (setAtLocation.queryState(null, plugin.END_PORTAL) == State.DENY) {
+            boolean canUsePortal = testState(event.getFrom(), plugin.END_PORTAL);
+            if (!canUsePortal) {
                 event.setCancelled(true);
             }
         } else {
-            if (setAtLocation.queryState(null, plugin.NETHER_PORTAL) == State.DENY) {
+            boolean canUsePortal = testState(event.getFrom(), plugin.NETHER_PORTAL);
+            if (!canUsePortal) {
                 event.setCancelled(true);
             }
         }
@@ -108,72 +111,72 @@ public class NerdFlagsListener implements Listener {
         }
         if (!event.isCancelled() && event.getClickedBlock() != null) {
             Location location = event.getClickedBlock().getLocation();
-            LocalPlayer player = worldguard.wrapPlayer(event.getPlayer());
+            Player player = event.getPlayer();
 
             if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 switch (event.getClickedBlock().getType()) {
                 case DISPENSER:
-                    cancelEvent(event, !allows(plugin.USE_DISPENSER, location, player), true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_DISPENSER), true);
                     break;
                 case NOTE_BLOCK:
-                    cancelEvent(event, !allows(plugin.USE_NOTE_BLOCK, location, player, true), true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_NOTE_BLOCK), true);
                     break;
                 case WORKBENCH:
-                    cancelEvent(event, !allows(plugin.USE_WORKBENCH, location, player), true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_WORKBENCH), true);
                     break;
                 case WOODEN_DOOR:
-                    cancelEvent(event, !allows(plugin.USE_DOOR, location, player), true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_DOOR), true);
                     break;
                 case LEVER:
-                    cancelEvent(event, !allows(plugin.USE_LEVER, location, player), true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_LEVER), true);
                     break;
                 case STONE_BUTTON:
                 case WOOD_BUTTON:
-                    cancelEvent(event, !allows(plugin.USE_BUTTON, location, player), true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_BUTTON), true);
                     break;
                 case JUKEBOX:
-                    cancelEvent(event, !allows(plugin.USE_JUKEBOX, location, player), true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_JUKEBOX), true);
                     break;
                 case DIODE_BLOCK_OFF:
                 case DIODE_BLOCK_ON:
-                    cancelEvent(event, !allows(plugin.USE_REPEATER, location, player, true), true, true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_REPEATER), true);
                     break;
                 case TRAP_DOOR:
-                    cancelEvent(event, !allows(plugin.USE_TRAP_DOOR, location, player), true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_TRAP_DOOR), true);
                     break;
                 case FENCE_GATE:
-                    cancelEvent(event, !allows(plugin.USE_FENCE_GATE, location, player), true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_FENCE_GATE), true);
                     break;
                 case BREWING_STAND:
-                    cancelEvent(event, !allows(plugin.USE_BREWING_STAND, location, player), true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_BREWING_STAND), true);
                     break;
                 case CAULDRON:
-                    cancelEvent(event, !allows(plugin.USE_CAULDRON, location, player), true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_CAULDRON), true);
                     break;
                 case ENCHANTMENT_TABLE:
-                    cancelEvent(event, !allows(plugin.USE_ENCHANTMENT_TABLE, location, player), true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_ENCHANTMENT_TABLE), true);
                     break;
                 case ENDER_CHEST:
-                    cancelEvent(event, !allows(plugin.USE_ENDER_CHEST, location, player), true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_ENDER_CHEST), true);
                     break;
                 case BEACON:
-                    cancelEvent(event, !allows(plugin.USE_BEACON, location, player), true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_BEACON), true);
                     break;
                 case ANVIL:
-                    cancelEvent(event, !allows(plugin.USE_ANVIL, location, player), true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_ANVIL), true);
                     break;
                 case REDSTONE_COMPARATOR_OFF:
                 case REDSTONE_COMPARATOR_ON:
-                    cancelEvent(event, !allows(plugin.USE_COMPARATOR, location, player, true), true, true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_COMPARATOR), true);
                     break;
                 case HOPPER:
-                    cancelEvent(event, !allows(plugin.USE_HOPPER, location, player), true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_HOPPER), true);
                     break;
                 case DROPPER:
-                    cancelEvent(event, !allows(plugin.USE_DROPPER, location, player), true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_DROPPER), true);
                     break;
                 case DAYLIGHT_DETECTOR:
-                    cancelEvent(event, !allows(plugin.USE_DAYLIGHT_DETECTOR, location, player, true), true, true);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_DAYLIGHT_DETECTOR), true);
                     break;
                 default:
                 }
@@ -181,10 +184,10 @@ public class NerdFlagsListener implements Listener {
             if (event.getAction() == Action.PHYSICAL) {
                 Material mat = event.getClickedBlock().getType();
                 if (mat == Material.STONE_PLATE || mat == Material.WOOD_PLATE || mat == Material.GOLD_PLATE || mat == Material.IRON_PLATE) {
-                    cancelEvent(event, !allows(plugin.USE_PRESSURE_PLATE, location, player), false);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_PRESSURE_PLATE), false);
                 }
                 else if (mat == Material.TRIPWIRE) {
-                    cancelEvent(event, !allows(plugin.USE_TRIPWIRE, location, player), false);
+                    setCancelled(event, !testBuild(player, location, plugin.USE_TRIPWIRE), false);
                 }
             }
         }
@@ -200,27 +203,31 @@ public class NerdFlagsListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         if (plugin.hasCompassed(event.getPlayer())) {
-            ApplicableRegionSet setAtLocation = worldguard.getRegionManager(event.getFrom().getWorld()).getApplicableRegions(event.getFrom());
-            ApplicableRegionSet setAtTeleport = worldguard.getRegionManager(event.getTo().getWorld()).getApplicableRegions(event.getTo());
-            LocalPlayer player = worldguard.wrapPlayer(event.getPlayer());
-            if (!player.hasPermission("worldguard.region.bypass." + event.getPlayer().getWorld().getName())
-                    && !(setAtLocation.testState(player, plugin.COMPASS)
-                            && setAtTeleport.testState(player, plugin.COMPASS))) {
-                event.setCancelled(true);
-                event.getPlayer().sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
+            Location locationFrom = event.getFrom();
+            World worldFrom = locationFrom.getWorld();
+            Location locationTo = event.getTo();
+            World worldTo = locationTo.getWorld();
+
+            RegionQuery query = worldguard.getRegionContainer().createQuery();
+            Player player = event.getPlayer();
+            boolean canBypass = hasBypass(player, worldFrom) && hasBypass(player, worldTo);
+            boolean canCompass = testState(event.getFrom(), plugin.COMPASS) && testState(event.getTo(), plugin.COMPASS);
+            if (!canBypass && !canCompass) {
+                cancelEvent(event, true);
             }
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onPlayerPortal(PlayerPortalEvent event) {
-        ApplicableRegionSet setAtLocation = worldguard.getRegionManager(event.getFrom().getWorld()).getApplicableRegions(event.getFrom());
         if (event.getCause() == TeleportCause.END_PORTAL) {
-            if (setAtLocation.queryState(null, plugin.END_PORTAL) == State.DENY) {
+            boolean canUsePortal = testState(event.getFrom(), plugin.END_PORTAL);
+            if (!canUsePortal) {
                 event.setCancelled(true);
             }
         } else if (event.getCause() == TeleportCause.NETHER_PORTAL) {
-            if (setAtLocation.queryState(null, plugin.NETHER_PORTAL) == State.DENY) {
+            boolean canUsePortal = testState(event.getFrom(), plugin.NETHER_PORTAL);
+            if (!canUsePortal) {
                 event.setCancelled(true);
             }
         }
@@ -231,8 +238,8 @@ public class NerdFlagsListener implements Listener {
         if (event.getEntityType() == EntityType.SNOWBALL) {
             Block b = event.getEntity().getLocation().getBlock();
             if (b.getType() == Material.FIRE) {
-                ApplicableRegionSet setAtLocation = worldguard.getRegionManager(b.getWorld()).getApplicableRegions(b.getLocation());
-                if (setAtLocation.queryState(null, plugin.SNOWBALL_FIREFIGHT) == State.ALLOW) {
+                boolean canExtinguish = testState(b.getLocation(), plugin.SNOWBALL_FIREFIGHT);
+                if (canExtinguish) {
                     b.setType(Material.AIR);
                     b.getWorld().playEffect(b.getLocation(), Effect.EXTINGUISH, 0);
                 }
@@ -240,27 +247,35 @@ public class NerdFlagsListener implements Listener {
         }
     }
 
-    private boolean allows(StateFlag flag, Location location, LocalPlayer player) {
-        return allows(flag, location, player, false);
+    private boolean testBuild(Player player, Location location, StateFlag flag) {
+        World world = location.getWorld();
+        RegionQuery query = worldguard.getRegionContainer().createQuery();
+        return hasBypass(player, world) || query.testBuild(location, player, flag);
     }
 
-    private boolean allows(StateFlag flag, Location location, LocalPlayer player, boolean useBuildFlag) {
-        ApplicableRegionSet set = worldguard.getRegionManager(location.getWorld()).getApplicableRegions(location);
-        return player.hasPermission("worldguard.region.bypass." + location.getWorld().getName())
-                || (useBuildFlag && set.testState(player, DefaultFlag.BUILD))
-                || set.testState(player, flag);
+    private boolean hasBypass(Player player, World world) {
+        return player.hasPermission("worldguard.region.bypass." + world.getName());
     }
 
-    private void cancelEvent(PlayerInteractEvent e, boolean cancel, boolean notifyPlayer) {
-        cancelEvent(e, cancel, notifyPlayer, false);
+    private void cancelEvent(Cancellable e, boolean notifyPlayer) {
+        setCancelled(e, true, notifyPlayer);
     }
 
-    // Override for repeaters and comparators, since WG cancels these without
-    // any checks.
-    private void cancelEvent(PlayerInteractEvent e, boolean cancel, boolean notifyPlayer, boolean override) {
+    private void setCancelled(Cancellable e, boolean cancel, boolean notifyPlayer) {
         e.setCancelled(cancel);
-        if (e.isCancelled() && notifyPlayer) {
-            e.getPlayer().sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
+        if (e.isCancelled() && notifyPlayer && e instanceof PlayerEvent) {
+            PlayerEvent playerEvent = (PlayerEvent) e;
+            Player player = playerEvent.getPlayer();
+            player.sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
         }
+    }
+
+    private boolean testState(Entity entity, StateFlag flag) {
+        return testState(entity.getLocation(), flag);
+    }
+
+    private boolean testState(Location location, StateFlag flag) {
+        RegionQuery query = worldguard.getRegionContainer().createQuery();
+        return query.testState(location, (RegionAssociable) null, flag);
     }
 }
