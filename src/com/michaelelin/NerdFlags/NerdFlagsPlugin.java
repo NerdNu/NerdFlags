@@ -5,6 +5,7 @@ import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 
 import java.util.logging.Level;
 
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -16,6 +17,8 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 public class NerdFlagsPlugin extends JavaPlugin {
 
+    WorldGuardPlugin worldguard;
+    WorldEditPlugin worldedit;
     private NerdFlagsListener listener;
     private NerdFlagsRegionListener regionListener;
     private Player nextTP;
@@ -34,6 +37,8 @@ public class NerdFlagsPlugin extends JavaPlugin {
     public StateFlag SNOWBALL_FIREFIGHT;
 
     public StateFlag COMPASS;
+    public StateFlag TELEPORT_ENTRY;
+    public EnumFlag<GameMode> FORCE_GAMEMODE;
 
     public StateFlag WEATHER;
 
@@ -80,7 +85,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
             getServer().getPluginManager().registerEvents(regionListener, this);
         }
 
-        listener = new NerdFlagsListener(this, getPlugin("WorldGuard", WorldGuardPlugin.class), getPlugin("WorldEdit", WorldEditPlugin.class));
+        listener = new NerdFlagsListener(this);
         getServer().getPluginManager().registerEvents(listener, this);
 
     }
@@ -118,8 +123,9 @@ public class NerdFlagsPlugin extends JavaPlugin {
     	
     	saveDefaultConfig();
 
-    	WorldGuardPlugin wg = getPlugin("WorldGuard", WorldGuardPlugin.class);
-    	FlagRegistry fr = wg.getFlagRegistry();
+        worldguard = getPlugin("WorldGuard", WorldGuardPlugin.class);
+        worldedit = getPlugin("WorldEdit", WorldEditPlugin.class);
+        FlagRegistry fr = worldguard.getFlagRegistry();
 
         fr.register(ALLOW_DROPS = new StateFlag("allow-drops", true));
         fr.register(ALLOW_MOB_DROPS = new StateFlag("allow-mob-drops", true));
@@ -128,6 +134,8 @@ public class NerdFlagsPlugin extends JavaPlugin {
         fr.register(END_PORTAL = new StateFlag("end-portal", true));
         fr.register(SNOWBALL_FIREFIGHT = new StateFlag("snowball-firefight", false));
         fr.register(COMPASS = new StateFlag("compass", true));
+        fr.register(TELEPORT_ENTRY = new StateFlag("teleport-entry", true));
+        fr.register(FORCE_GAMEMODE = new EnumFlag<>("force-gamemode", GameMode.class));
         fr.register(WEATHER = new StateFlag("weather", false));
         fr.register(DATE = new StringFlag("date"));
         fr.register(CREATED_BY = new StringFlag("created-by"));

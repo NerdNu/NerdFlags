@@ -11,6 +11,8 @@ Available flags:
 | entry-commands        | String                | *N/A*         |
 | weather               | State                 | DENY          |
 | compass               | State                 | ALLOW         |
+| teleport-entry        | State                 | ALLOW         |
+| force-gamemode        | GameMode              | null          |
 | allow-drops           | State                 | ALLOW         |
 | allow-mob-drops       | State                 | ALLOW         |
 | player-mob-damage     | Set&lt;EntityType&gt; | {}            |

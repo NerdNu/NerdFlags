@@ -4,10 +4,12 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import com.sk89q.worldguard.bukkit.RegionQuery;
+import com.sk89q.worldguard.protection.GlobalRegionManager;
 import com.sk89q.worldguard.protection.association.RegionAssociable;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -25,30 +27,25 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerEvent;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import org.bukkit.projectiles.ProjectileSource;
 
 public class NerdFlagsListener implements Listener {
 
     private NerdFlagsPlugin plugin;
-    private WorldGuardPlugin worldguard;
-    private WorldEditPlugin worldedit;
 
     private final Pattern compassPattern = Pattern.compile("(?i)^/(worldedit:)?/?("
             + StringUtils.join(Arrays.asList("unstuck", "!", "ascend", "asc", "descend", "desc",
                     "ceil", "thru", "jumpto", "j", "up"), "|") + ")");
 
-    public NerdFlagsListener(NerdFlagsPlugin plugin, WorldGuardPlugin worldguard, WorldEditPlugin worldedit) {
+    public NerdFlagsListener(NerdFlagsPlugin plugin) {
         this.plugin = plugin;
-        this.worldguard = worldguard;
-        this.worldedit = worldedit;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -106,7 +103,8 @@ public class NerdFlagsListener implements Listener {
     // WE checks this at a NORMAL priority, so we'll intercept it beforehand.
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerInteract(PlayerInteractEvent event) {
-        if (event.getItem() != null && event.getItem().getTypeId() == worldedit.getWorldEdit().getConfiguration().navigationWand) {
+        int navigationWandId = plugin.worldedit.getWorldEdit().getConfiguration().navigationWand;
+        if (event.getItem() != null && event.getItem().getTypeId() == navigationWandId) {
             plugin.expectTeleport(event.getPlayer());
         }
         if (!event.isCancelled() && event.getClickedBlock() != null) {
@@ -176,6 +174,7 @@ public class NerdFlagsListener implements Listener {
                     setCancelled(event, !testBuild(player, location, plugin.USE_DROPPER), true);
                     break;
                 case DAYLIGHT_DETECTOR:
+                case DAYLIGHT_DETECTOR_INVERTED:
                     setCancelled(event, !testBuild(player, location, plugin.USE_DAYLIGHT_DETECTOR), true);
                     break;
                 default:
@@ -202,18 +201,35 @@ public class NerdFlagsListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerTeleport(PlayerTeleportEvent event) {
-        if (plugin.hasCompassed(event.getPlayer())) {
-            Location locationFrom = event.getFrom();
-            World worldFrom = locationFrom.getWorld();
-            Location locationTo = event.getTo();
-            World worldTo = locationTo.getWorld();
+        Location locationFrom = event.getFrom();
+        World worldFrom = locationFrom.getWorld();
+        Location locationTo = event.getTo();
+        World worldTo = locationTo.getWorld();
 
-            RegionQuery query = worldguard.getRegionContainer().createQuery();
+        boolean canTeleport = hasBypass(event.getPlayer(), worldTo) || testState(locationTo, plugin.TELEPORT_ENTRY);
+        if (!canTeleport) {
+            cancelEvent(event, true);
+        }
+
+        if (plugin.hasCompassed(event.getPlayer())) {
             Player player = event.getPlayer();
             boolean canBypass = hasBypass(player, worldFrom) && hasBypass(player, worldTo);
             boolean canCompass = testState(event.getFrom(), plugin.COMPASS) && testState(event.getTo(), plugin.COMPASS);
             if (!canBypass && !canCompass) {
                 cancelEvent(event, true);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void onPlayerGameModeChange(PlayerGameModeChangeEvent event) {
+        RegionQuery query = plugin.worldguard.getRegionContainer().createQuery();
+        Player player = event.getPlayer();
+        Location location = player.getLocation();
+        GameMode forcedMode = query.queryValue(location, (RegionAssociable) null, plugin.FORCE_GAMEMODE);
+        if (forcedMode != null && !forcedMode.equals(event.getNewGameMode())) {
+            if (!hasBypass(player, location.getWorld())) {
+                cancelEvent(event, false);
             }
         }
     }
@@ -249,12 +265,13 @@ public class NerdFlagsListener implements Listener {
 
     private boolean testBuild(Player player, Location location, StateFlag flag) {
         World world = location.getWorld();
-        RegionQuery query = worldguard.getRegionContainer().createQuery();
+        RegionQuery query = plugin.worldguard.getRegionContainer().createQuery();
         return hasBypass(player, world) || query.testBuild(location, player, flag);
     }
 
     private boolean hasBypass(Player player, World world) {
-        return player.hasPermission("worldguard.region.bypass." + world.getName());
+        GlobalRegionManager regionManager = plugin.worldguard.getGlobalRegionManager();
+        return regionManager.hasBypass(player, world);
     }
 
     private void cancelEvent(Cancellable e, boolean notifyPlayer) {
@@ -275,7 +292,7 @@ public class NerdFlagsListener implements Listener {
     }
 
     private boolean testState(Location location, StateFlag flag) {
-        RegionQuery query = worldguard.getRegionContainer().createQuery();
+        RegionQuery query = plugin.worldguard.getRegionContainer().createQuery();
         return query.testState(location, (RegionAssociable) null, flag);
     }
 }

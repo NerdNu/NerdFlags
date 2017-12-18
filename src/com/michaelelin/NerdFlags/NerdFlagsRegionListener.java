@@ -4,11 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.sk89q.worldedit.Vector;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -30,20 +26,16 @@ public class NerdFlagsRegionListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerEnteredRegion(RegionEnteredEvent event) {
-        if (event.getRegion().getFlag(plugin.WEATHER) == StateFlag.State.ALLOW) {
-            PacketContainer weatherPacket = plugin.protocolManager.createPacket(PacketType.Play.Server.GAME_STATE_CHANGE);
-            weatherPacket.getIntegers().write(0, 2);
-            weatherPacket.getFloat().write(0, 0F);
-            try {
-                plugin.protocolManager.sendServerPacket(event.getPlayer(), weatherPacket);
-            } catch (InvocationTargetException e) {
-            }
+        Player player = event.getPlayer();
+        StateFlag.State weatherState = event.getRegion().getFlag(plugin.WEATHER);
+        if (weatherState == StateFlag.State.ALLOW) {
+            setWeather(player, true);
         }
 
         String entryCommands = event.getRegion().getFlag(plugin.ENTRY_COMMANDS);
         if (entryCommands != null) {
             for (String command : parseCommands(entryCommands)) {
-                plugin.getServer().dispatchCommand(event.getPlayer(), command);
+                plugin.getServer().dispatchCommand(player, command);
             }
         }
 
@@ -62,14 +54,22 @@ public class NerdFlagsRegionListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerLeftRegion(RegionLeftEvent event) {
-        if (event.getRegion().getFlag(plugin.WEATHER) == StateFlag.State.ALLOW && !event.getPlayer().getWorld().hasStorm()) {
-            PacketContainer weatherPacket = plugin.protocolManager.createPacket(PacketType.Play.Server.GAME_STATE_CHANGE);
-            weatherPacket.getIntegers().write(0, 1);
-            weatherPacket.getFloat().write(0, 0F);
-            try {
-                plugin.protocolManager.sendServerPacket(event.getPlayer(), weatherPacket);
-            } catch (InvocationTargetException e) {
-            }
+        Player player = event.getPlayer();
+        StateFlag.State weatherState = event.getRegion().getFlag(plugin.WEATHER);
+        boolean storming = player.getWorld().hasStorm();
+        if (weatherState == StateFlag.State.ALLOW && !storming) {
+            setWeather(player, false);
+        }
+    }
+
+    private void setWeather(Player player, boolean weather) {
+        PacketContainer weatherPacket = plugin.protocolManager.createPacket(PacketType.Play.Server.GAME_STATE_CHANGE);
+        weatherPacket.getIntegers().write(0, weather ? 2 : 1);
+        weatherPacket.getFloat().write(0, 0F);
+        try {
+            plugin.protocolManager.sendServerPacket(player, weatherPacket);
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
         }
     }
 
