@@ -263,6 +263,19 @@ public class NerdFlagsListener implements Listener {
         }
     }
 
+    /**
+     * Listens for player deaths in order to properly handle the keep-inventory region flag.
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerDeath(PlayerDeathEvent e) {
+        Player player = e.getEntity();
+        
+        if (testState(player, plugin.KEEP_INVENTORY)) {
+            e.setKeepLevel(false);
+            e.setKeepInventory(true);
+        }
+    }
+
     private boolean testBuild(Player player, Location location, StateFlag flag) {
         World world = location.getWorld();
         RegionQuery query = plugin.worldguard.getRegionContainer().createQuery();

@@ -13,6 +13,7 @@ Available flags:
 | compass               | State                 | ALLOW         |
 | teleport-entry        | State                 | ALLOW         |
 | force-gamemode        | GameMode              | null          |
+| keep-inventory        | State                 | DENY          |
 | allow-drops           | State                 | ALLOW         |
 | allow-mob-drops       | State                 | ALLOW         |
 | player-mob-damage     | Set&lt;EntityType&gt; | {}            |

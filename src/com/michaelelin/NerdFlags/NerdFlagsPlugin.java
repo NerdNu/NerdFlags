@@ -42,6 +42,8 @@ public class NerdFlagsPlugin extends JavaPlugin {
 
     public StateFlag WEATHER;
 
+    public StateFlag KEEP_INVENTORY;
+
     public StringFlag DATE;
     public StringFlag CREATED_BY;
     public StringFlag FIRST_OWNER;
@@ -137,6 +139,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
         fr.register(TELEPORT_ENTRY = new StateFlag("teleport-entry", true));
         fr.register(FORCE_GAMEMODE = new EnumFlag<>("force-gamemode", GameMode.class));
         fr.register(WEATHER = new StateFlag("weather", false));
+        fr.register(KEEP_INVENTORY = new StateFlag("keep-inventory", false));
         fr.register(DATE = new StringFlag("date"));
         fr.register(CREATED_BY = new StringFlag("created-by"));
         fr.register(FIRST_OWNER = new StringFlag("first-owner"));

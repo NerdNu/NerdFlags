@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.michaelelin</groupId>
     <artifactId>NerdFlags</artifactId>
-    <version>0.4.2</version>
+    <version>0.4.3</version>
     <url>https://github.com/NerdNu/NerdFlags</url>
     <build>
         <defaultGoal>clean package</defaultGoal>
@@ -22,10 +22,10 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.7.0</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -37,7 +37,7 @@
         </repository>
         <repository>
             <id>dmulloy2-repo</id>
-            <url>http://repo.dmulloy2.net/content/groups/public/</url>
+            <url>http://repo.dmulloy2.net/nexus/repository/public/</url>
         </repository>
         <repository>
             <id>sk89q</id>
