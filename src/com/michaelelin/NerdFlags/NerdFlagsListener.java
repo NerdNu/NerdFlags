@@ -1,11 +1,11 @@
 package com.michaelelin.NerdFlags;
 
-import java.util.Arrays;
-import java.util.regex.Pattern;
-
-import com.sk89q.worldguard.bukkit.RegionQuery;
-import com.sk89q.worldguard.protection.GlobalRegionManager;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.LocalPlayer;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.association.RegionAssociable;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.regions.RegionQuery;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
@@ -24,7 +24,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.*;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityPortalEvent;
+import org.bukkit.event.entity.ItemSpawnEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
@@ -32,9 +37,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
-
-import com.sk89q.worldguard.protection.flags.StateFlag;
 import org.bukkit.projectiles.ProjectileSource;
+
+import java.util.Arrays;
+import java.util.regex.Pattern;
 
 public class NerdFlagsListener implements Listener {
 
@@ -103,8 +109,7 @@ public class NerdFlagsListener implements Listener {
     // WE checks this at a NORMAL priority, so we'll intercept it beforehand.
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerInteract(PlayerInteractEvent event) {
-        int navigationWandId = plugin.worldedit.getWorldEdit().getConfiguration().navigationWand;
-        if (event.getItem() != null && event.getItem().getTypeId() == navigationWandId) {
+        if (event.getItem() != null && event.getItem().getType() == plugin._navigationWand) {
             plugin.expectTeleport(event.getPlayer());
         }
         if (!event.isCancelled() && event.getClickedBlock() != null) {
@@ -113,80 +118,109 @@ public class NerdFlagsListener implements Listener {
 
             if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 switch (event.getClickedBlock().getType()) {
-                case DISPENSER:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_DISPENSER), true);
-                    break;
-                case NOTE_BLOCK:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_NOTE_BLOCK), true);
-                    break;
-                case WORKBENCH:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_WORKBENCH), true);
-                    break;
-                case WOODEN_DOOR:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_DOOR), true);
-                    break;
-                case LEVER:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_LEVER), true);
-                    break;
-                case STONE_BUTTON:
-                case WOOD_BUTTON:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_BUTTON), true);
-                    break;
-                case JUKEBOX:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_JUKEBOX), true);
-                    break;
-                case DIODE_BLOCK_OFF:
-                case DIODE_BLOCK_ON:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_REPEATER), true);
-                    break;
-                case TRAP_DOOR:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_TRAP_DOOR), true);
-                    break;
-                case FENCE_GATE:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_FENCE_GATE), true);
-                    break;
-                case BREWING_STAND:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_BREWING_STAND), true);
-                    break;
-                case CAULDRON:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_CAULDRON), true);
-                    break;
-                case ENCHANTMENT_TABLE:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_ENCHANTMENT_TABLE), true);
-                    break;
-                case ENDER_CHEST:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_ENDER_CHEST), true);
-                    break;
-                case BEACON:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_BEACON), true);
-                    break;
-                case ANVIL:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_ANVIL), true);
-                    break;
-                case REDSTONE_COMPARATOR_OFF:
-                case REDSTONE_COMPARATOR_ON:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_COMPARATOR), true);
-                    break;
-                case HOPPER:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_HOPPER), true);
-                    break;
-                case DROPPER:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_DROPPER), true);
-                    break;
-                case DAYLIGHT_DETECTOR:
-                case DAYLIGHT_DETECTOR_INVERTED:
-                    setCancelled(event, !testBuild(player, location, plugin.USE_DAYLIGHT_DETECTOR), true);
-                    break;
-                default:
+                    case DISPENSER:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_DISPENSER), true);
+                        break;
+                    case NOTE_BLOCK:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_NOTE_BLOCK), true);
+                        break;
+                    case CRAFTING_TABLE:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_WORKBENCH), true);
+                        break;
+                    case ACACIA_DOOR:
+                    case BIRCH_DOOR:
+                    case DARK_OAK_DOOR:
+                    case JUNGLE_DOOR:
+                    case OAK_DOOR:
+                    case SPRUCE_DOOR:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_DOOR), true);
+                        break;
+                    case LEVER:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_LEVER), true);
+                        break;
+                    case STONE_BUTTON:
+                    case ACACIA_BUTTON:
+                    case BIRCH_BUTTON:
+                    case DARK_OAK_BUTTON:
+                    case JUNGLE_BUTTON:
+                    case OAK_BUTTON:
+                    case SPRUCE_BUTTON:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_BUTTON), true);
+                        break;
+                    case JUKEBOX:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_JUKEBOX), true);
+                        break;
+                    case REPEATER:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_REPEATER), true);
+                        break;
+                    case ACACIA_TRAPDOOR:
+                    case BIRCH_TRAPDOOR:
+                    case DARK_OAK_TRAPDOOR:
+                    case JUNGLE_TRAPDOOR:
+                    case OAK_TRAPDOOR:
+                    case SPRUCE_TRAPDOOR:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_TRAP_DOOR), true);
+                        break;
+                    case ACACIA_FENCE_GATE:
+                    case BIRCH_FENCE_GATE:
+                    case DARK_OAK_FENCE_GATE:
+                    case JUNGLE_FENCE_GATE:
+                    case OAK_FENCE_GATE:
+                    case SPRUCE_FENCE_GATE:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_FENCE_GATE), true);
+                        break;
+                    case BREWING_STAND:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_BREWING_STAND), true);
+                        break;
+                    case CAULDRON:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_CAULDRON), true);
+                        break;
+                    case ENCHANTING_TABLE:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_ENCHANTMENT_TABLE), true);
+                        break;
+                    case ENDER_CHEST:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_ENDER_CHEST), true);
+                        break;
+                    case BEACON:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_BEACON), true);
+                        break;
+                    case ANVIL:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_ANVIL), true);
+                        break;
+                    case COMPARATOR:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_COMPARATOR), true);
+                        break;
+                    case HOPPER:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_HOPPER), true);
+                        break;
+                    case DROPPER:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_DROPPER), true);
+                        break;
+                    case DAYLIGHT_DETECTOR:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_DAYLIGHT_DETECTOR), true);
+                        break;
+                    default:
                 }
             }
+
             if (event.getAction() == Action.PHYSICAL) {
-                Material mat = event.getClickedBlock().getType();
-                if (mat == Material.STONE_PLATE || mat == Material.WOOD_PLATE || mat == Material.GOLD_PLATE || mat == Material.IRON_PLATE) {
-                    setCancelled(event, !testBuild(player, location, plugin.USE_PRESSURE_PLATE), false);
-                }
-                else if (mat == Material.TRIPWIRE) {
-                    setCancelled(event, !testBuild(player, location, plugin.USE_TRIPWIRE), false);
+                Material material = event.getClickedBlock().getType();
+                switch (material) {
+                    case ACACIA_PRESSURE_PLATE:
+                    case BIRCH_PRESSURE_PLATE:
+                    case DARK_OAK_PRESSURE_PLATE:
+                    case JUNGLE_PRESSURE_PLATE:
+                    case OAK_PRESSURE_PLATE:
+                    case SPRUCE_PRESSURE_PLATE:
+                    case HEAVY_WEIGHTED_PRESSURE_PLATE:
+                    case LIGHT_WEIGHTED_PRESSURE_PLATE:
+                    case STONE_PRESSURE_PLATE:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_PRESSURE_PLATE), false);
+                        break;
+                    case TRIPWIRE:
+                        setCancelled(event, !testBuild(player, location, plugin.USE_TRIPWIRE), false);
+                        break;
+                    default:
                 }
             }
         }
@@ -223,10 +257,11 @@ public class NerdFlagsListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPlayerGameModeChange(PlayerGameModeChangeEvent event) {
-        RegionQuery query = plugin.worldguard.getRegionContainer().createQuery();
+        RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
         Player player = event.getPlayer();
         Location location = player.getLocation();
-        GameMode forcedMode = query.queryValue(location, (RegionAssociable) null, plugin.FORCE_GAMEMODE);
+        com.sk89q.worldedit.util.Location wrappedLocation = BukkitAdapter.adapt(location);
+        GameMode forcedMode = query.queryValue(wrappedLocation, (RegionAssociable) null, plugin.FORCE_GAMEMODE);
         if (forcedMode != null && !forcedMode.equals(event.getNewGameMode())) {
             if (!hasBypass(player, location.getWorld())) {
                 cancelEvent(event, false);
@@ -278,13 +313,16 @@ public class NerdFlagsListener implements Listener {
 
     private boolean testBuild(Player player, Location location, StateFlag flag) {
         World world = location.getWorld();
-        RegionQuery query = plugin.worldguard.getRegionContainer().createQuery();
-        return hasBypass(player, world) || query.testBuild(location, player, flag);
+        RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
+        com.sk89q.worldedit.util.Location wrappedLocation = BukkitAdapter.adapt(location);
+        LocalPlayer localPlayer = plugin.worldguard.wrapPlayer(player);
+        return hasBypass(player, world) || query.testBuild(wrappedLocation, localPlayer, flag);
     }
 
     private boolean hasBypass(Player player, World world) {
-        GlobalRegionManager regionManager = plugin.worldguard.getGlobalRegionManager();
-        return regionManager.hasBypass(player, world);
+        com.sk89q.worldedit.world.World wrappedWorld = BukkitAdapter.adapt(world);
+        LocalPlayer wrappedPlayer = plugin.worldguard.wrapPlayer(player);
+        return WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(wrappedPlayer, wrappedWorld);
     }
 
     private void cancelEvent(Cancellable e, boolean notifyPlayer) {
@@ -305,7 +343,8 @@ public class NerdFlagsListener implements Listener {
     }
 
     private boolean testState(Location location, StateFlag flag) {
-        RegionQuery query = plugin.worldguard.getRegionContainer().createQuery();
-        return query.testState(location, (RegionAssociable) null, flag);
+        RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();
+        com.sk89q.worldedit.util.Location wrappedLocation = BukkitAdapter.adapt(location);
+        return query.testState(wrappedLocation, (RegionAssociable) null, flag);
     }
 }

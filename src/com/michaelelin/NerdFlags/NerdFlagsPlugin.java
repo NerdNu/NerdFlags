@@ -1,79 +1,87 @@
 package com.michaelelin.NerdFlags;
 
-import com.sk89q.worldguard.protection.flags.*;
+import com.comphenix.protocol.ProtocolLibrary;
+import com.comphenix.protocol.ProtocolManager;
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import com.sk89q.worldguard.protection.flags.EnumFlag;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.flags.StringFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
-
-import java.util.logging.Level;
-
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import java.util.logging.Level;
 
 public class NerdFlagsPlugin extends JavaPlugin {
 
     WorldGuardPlugin worldguard;
+
     WorldEditPlugin worldedit;
+
+    Material _navigationWand;
+
     private NerdFlagsListener listener;
     private NerdFlagsRegionListener regionListener;
     private Player nextTP;
     private long timestamp;
 
-    public ProtocolManager protocolManager;
+    ProtocolManager protocolManager;
 
-    public StateFlag ALLOW_DROPS;
-    public StateFlag ALLOW_MOB_DROPS;
+    StateFlag ALLOW_DROPS;
+    StateFlag ALLOW_MOB_DROPS;
 
-    public StateFlag PLAYER_MOB_DAMAGE;
+    StateFlag PLAYER_MOB_DAMAGE;
 
-    public StateFlag NETHER_PORTAL;
-    public StateFlag END_PORTAL;
+    StateFlag NETHER_PORTAL;
+    StateFlag END_PORTAL;
 
-    public StateFlag SNOWBALL_FIREFIGHT;
+    StateFlag SNOWBALL_FIREFIGHT;
 
-    public StateFlag COMPASS;
-    public StateFlag TELEPORT_ENTRY;
-    public EnumFlag<GameMode> FORCE_GAMEMODE;
+    StateFlag COMPASS;
+    StateFlag TELEPORT_ENTRY;
 
-    public StateFlag WEATHER;
+    EnumFlag<GameMode> FORCE_GAMEMODE;
 
-    public StateFlag KEEP_INVENTORY;
+    StateFlag WEATHER;
 
-    public StringFlag DATE;
-    public StringFlag CREATED_BY;
-    public StringFlag FIRST_OWNER;
+    StateFlag KEEP_INVENTORY;
 
-    public StringFlag ENTRY_COMMANDS;
+    private StringFlag DATE;
+    private StringFlag CREATED_BY;
+    private StringFlag FIRST_OWNER;
+
+    StringFlag ENTRY_COMMANDS;
 
     //public CustomLocationFlag WARP;
 
-    public StateFlag USE_DISPENSER;
-    public StateFlag USE_NOTE_BLOCK;
-    public StateFlag USE_WORKBENCH;
-    public StateFlag USE_DOOR;
-    public StateFlag USE_LEVER;
-    public StateFlag USE_PRESSURE_PLATE;
-    public StateFlag USE_BUTTON;
-    public StateFlag USE_JUKEBOX;
-    public StateFlag USE_REPEATER;
-    public StateFlag USE_TRAP_DOOR;
-    public StateFlag USE_FENCE_GATE;
-    public StateFlag USE_BREWING_STAND;
-    public StateFlag USE_CAULDRON;
-    public StateFlag USE_ENCHANTMENT_TABLE;
-    public StateFlag USE_ENDER_CHEST;
-    public StateFlag USE_TRIPWIRE;
-    public StateFlag USE_BEACON;
-    public StateFlag USE_ANVIL;
-    public StateFlag USE_COMPARATOR;
-    public StateFlag USE_HOPPER;
-    public StateFlag USE_DROPPER;
-    public StateFlag USE_DAYLIGHT_DETECTOR;
+    StateFlag USE_DISPENSER;
+    StateFlag USE_NOTE_BLOCK;
+    StateFlag USE_WORKBENCH;
+    StateFlag USE_DOOR;
+    StateFlag USE_LEVER;
+    StateFlag USE_PRESSURE_PLATE;
+    StateFlag USE_BUTTON;
+    StateFlag USE_JUKEBOX;
+    StateFlag USE_REPEATER;
+    StateFlag USE_TRAP_DOOR;
+    StateFlag USE_FENCE_GATE;
+    StateFlag USE_BREWING_STAND;
+    StateFlag USE_CAULDRON;
+    StateFlag USE_ENCHANTMENT_TABLE;
+    StateFlag USE_ENDER_CHEST;
+    StateFlag USE_TRIPWIRE;
+    StateFlag USE_BEACON;
+    StateFlag USE_ANVIL;
+    StateFlag USE_COMPARATOR;
+    StateFlag USE_HOPPER;
+    StateFlag USE_DROPPER;
+    StateFlag USE_DAYLIGHT_DETECTOR;
 
     @Override
     public void onEnable() {
@@ -90,6 +98,10 @@ public class NerdFlagsPlugin extends JavaPlugin {
         listener = new NerdFlagsListener(this);
         getServer().getPluginManager().registerEvents(listener, this);
 
+        // pull WorldEdit navigation wand information now
+        WorldEdit worldEdit = WorldEdit.getInstance();
+        String navigationWandMaterialName = worldEdit.getConfiguration().navigationWand;
+        _navigationWand = Material.getMaterial(navigationWandMaterialName);
     }
 
     private <T extends Plugin> boolean checkPlugin(String name, boolean required) {
@@ -104,16 +116,12 @@ public class NerdFlagsPlugin extends JavaPlugin {
         return true;
     }
 
-    private <T extends Plugin> T getPlugin(String name, Class<T> mainClass) {
-        return mainClass.cast(getServer().getPluginManager().getPlugin(name));
-    }
-
-    public void expectTeleport(Player player) {
+    void expectTeleport(Player player) {
         this.nextTP = player;
         this.timestamp = player.getPlayerTime();
     }
 
-    public boolean hasCompassed(Player player) {
+    boolean hasCompassed(Player player) {
         return this.nextTP == player && this.timestamp == player.getPlayerTime();
     }
 
@@ -125,51 +133,47 @@ public class NerdFlagsPlugin extends JavaPlugin {
     	
     	saveDefaultConfig();
 
-        worldguard = getPlugin("WorldGuard", WorldGuardPlugin.class);
-        worldedit = getPlugin("WorldEdit", WorldEditPlugin.class);
-        FlagRegistry fr = worldguard.getFlagRegistry();
+        WorldGuard worldGuard = WorldGuard.getInstance();
+        FlagRegistry flagRegistry = worldGuard.getFlagRegistry();
 
-        fr.register(ALLOW_DROPS = new StateFlag("allow-drops", true));
-        fr.register(ALLOW_MOB_DROPS = new StateFlag("allow-mob-drops", true));
-        fr.register(PLAYER_MOB_DAMAGE = new StateFlag("player-mob-damage", true));
-        fr.register(NETHER_PORTAL = new StateFlag("nether-portal", true));
-        fr.register(END_PORTAL = new StateFlag("end-portal", true));
-        fr.register(SNOWBALL_FIREFIGHT = new StateFlag("snowball-firefight", false));
-        fr.register(COMPASS = new StateFlag("compass", true));
-        fr.register(TELEPORT_ENTRY = new StateFlag("teleport-entry", true));
-        fr.register(FORCE_GAMEMODE = new EnumFlag<>("force-gamemode", GameMode.class));
-        fr.register(WEATHER = new StateFlag("weather", false));
-        fr.register(KEEP_INVENTORY = new StateFlag("keep-inventory", false));
-        fr.register(DATE = new StringFlag("date"));
-        fr.register(CREATED_BY = new StringFlag("created-by"));
-        fr.register(FIRST_OWNER = new StringFlag("first-owner"));
-        fr.register(ENTRY_COMMANDS = new StringFlag("entry-commands"));
+        flagRegistry.register(ALLOW_DROPS = new StateFlag("allow-drops", true));
+        flagRegistry.register(ALLOW_MOB_DROPS = new StateFlag("allow-mob-drops", true));
+        flagRegistry.register(PLAYER_MOB_DAMAGE = new StateFlag("player-mob-damage", true));
+        flagRegistry.register(NETHER_PORTAL = new StateFlag("nether-portal", true));
+        flagRegistry.register(END_PORTAL = new StateFlag("end-portal", true));
+        flagRegistry.register(SNOWBALL_FIREFIGHT = new StateFlag("snowball-firefight", false));
+        flagRegistry.register(COMPASS = new StateFlag("compass", true));
+        flagRegistry.register(TELEPORT_ENTRY = new StateFlag("teleport-entry", true));
+        flagRegistry.register(FORCE_GAMEMODE = new EnumFlag<>("force-gamemode", GameMode.class));
+        flagRegistry.register(WEATHER = new StateFlag("weather", false));
+        flagRegistry.register(KEEP_INVENTORY = new StateFlag("keep-inventory", false));
+        flagRegistry.register(DATE = new StringFlag("date"));
+        flagRegistry.register(CREATED_BY = new StringFlag("created-by"));
+        flagRegistry.register(FIRST_OWNER = new StringFlag("first-owner"));
+        flagRegistry.register(ENTRY_COMMANDS = new StringFlag("entry-commands"));
 
-        // TODO: Fix this
-        //fr.register(WARP = new CustomLocationFlag("warp"));
-
-        fr.register(USE_DISPENSER = new StateFlag("use-dispenser", getConfig().getBoolean("default-dispenser")));
-        fr.register(USE_NOTE_BLOCK = new StateFlag("use-note-block", getConfig().getBoolean("default-note-block")));
-        fr.register(USE_WORKBENCH = new StateFlag("use-workbench", getConfig().getBoolean("default-workbench")));
-        fr.register(USE_DOOR = new StateFlag("use-door", getConfig().getBoolean("default-door")));
-        fr.register(USE_LEVER = new StateFlag("use-lever", getConfig().getBoolean("default-lever")));
-        fr.register(USE_PRESSURE_PLATE = new StateFlag("use-pressure-plate", getConfig().getBoolean("default-pressure-plate")));
-        fr.register(USE_BUTTON = new StateFlag("use-button", getConfig().getBoolean("default-button")));
-        fr.register(USE_JUKEBOX = new StateFlag("use-jukebox", getConfig().getBoolean("default-jukebox")));
-        fr.register(USE_REPEATER = new StateFlag("use-repeater", getConfig().getBoolean("default-repeater")));
-        fr.register(USE_TRAP_DOOR = new StateFlag("use-trap-door", getConfig().getBoolean("default-trap-door")));
-        fr.register(USE_FENCE_GATE = new StateFlag("use-fence-gate", getConfig().getBoolean("default-fence-gate")));
-        fr.register(USE_BREWING_STAND = new StateFlag("use-brewing-stand", getConfig().getBoolean("default-brewing-stand")));
-        fr.register(USE_CAULDRON = new StateFlag("use-cauldron", getConfig().getBoolean("default-cauldron")));
-        fr.register(USE_ENCHANTMENT_TABLE = new StateFlag("use-enchantment-table", getConfig().getBoolean("default-enchantment-table")));
-        fr.register(USE_ENDER_CHEST = new StateFlag("use-ender-chest", getConfig().getBoolean("default-ender-chest")));
-        fr.register(USE_TRIPWIRE = new StateFlag("use-tripwire", getConfig().getBoolean("default-tripwire")));
-        fr.register(USE_BEACON = new StateFlag("use-beacon", getConfig().getBoolean("default-beacon")));
-        fr.register(USE_ANVIL = new StateFlag("use-anvil", getConfig().getBoolean("default-anvil")));
-        fr.register(USE_COMPARATOR = new StateFlag("use-comparator", getConfig().getBoolean("default-comparator")));
-        fr.register(USE_HOPPER = new StateFlag("use-hopper", getConfig().getBoolean("default-hopper")));
-        fr.register(USE_DROPPER = new StateFlag("use-dropper", getConfig().getBoolean("default-dropper")));
-        fr.register(USE_DAYLIGHT_DETECTOR = new StateFlag("use-daylight-detector", getConfig().getBoolean("default-daylight-detector")));
+        flagRegistry.register(USE_DISPENSER = new StateFlag("use-dispenser", getConfig().getBoolean("default-dispenser")));
+        flagRegistry.register(USE_NOTE_BLOCK = new StateFlag("use-note-block", getConfig().getBoolean("default-note-block")));
+        flagRegistry.register(USE_WORKBENCH = new StateFlag("use-workbench", getConfig().getBoolean("default-workbench")));
+        flagRegistry.register(USE_DOOR = new StateFlag("use-door", getConfig().getBoolean("default-door")));
+        flagRegistry.register(USE_LEVER = new StateFlag("use-lever", getConfig().getBoolean("default-lever")));
+        flagRegistry.register(USE_PRESSURE_PLATE = new StateFlag("use-pressure-plate", getConfig().getBoolean("default-pressure-plate")));
+        flagRegistry.register(USE_BUTTON = new StateFlag("use-button", getConfig().getBoolean("default-button")));
+        flagRegistry.register(USE_JUKEBOX = new StateFlag("use-jukebox", getConfig().getBoolean("default-jukebox")));
+        flagRegistry.register(USE_REPEATER = new StateFlag("use-repeater", getConfig().getBoolean("default-repeater")));
+        flagRegistry.register(USE_TRAP_DOOR = new StateFlag("use-trap-door", getConfig().getBoolean("default-trap-door")));
+        flagRegistry.register(USE_FENCE_GATE = new StateFlag("use-fence-gate", getConfig().getBoolean("default-fence-gate")));
+        flagRegistry.register(USE_BREWING_STAND = new StateFlag("use-brewing-stand", getConfig().getBoolean("default-brewing-stand")));
+        flagRegistry.register(USE_CAULDRON = new StateFlag("use-cauldron", getConfig().getBoolean("default-cauldron")));
+        flagRegistry.register(USE_ENCHANTMENT_TABLE = new StateFlag("use-enchantment-table", getConfig().getBoolean("default-enchantment-table")));
+        flagRegistry.register(USE_ENDER_CHEST = new StateFlag("use-ender-chest", getConfig().getBoolean("default-ender-chest")));
+        flagRegistry.register(USE_TRIPWIRE = new StateFlag("use-tripwire", getConfig().getBoolean("default-tripwire")));
+        flagRegistry.register(USE_BEACON = new StateFlag("use-beacon", getConfig().getBoolean("default-beacon")));
+        flagRegistry.register(USE_ANVIL = new StateFlag("use-anvil", getConfig().getBoolean("default-anvil")));
+        flagRegistry.register(USE_COMPARATOR = new StateFlag("use-comparator", getConfig().getBoolean("default-comparator")));
+        flagRegistry.register(USE_HOPPER = new StateFlag("use-hopper", getConfig().getBoolean("default-hopper")));
+        flagRegistry.register(USE_DROPPER = new StateFlag("use-dropper", getConfig().getBoolean("default-dropper")));
+        flagRegistry.register(USE_DAYLIGHT_DETECTOR = new StateFlag("use-daylight-detector", getConfig().getBoolean("default-daylight-detector")));
 
         getLogger().log(Level.INFO, "Loaded all flags");
     }

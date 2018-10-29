@@ -6,4 +6,5 @@ website: ${project.url}
 database: false
 depend: [WorldGuard, WorldEdit]
 softdepend: [ProtocolLib, WGRegionEvents]
-authors: [Dumbo52, Challenger2, Redwall_HP]
+authors: [Dumbo52, Challenger2, Redwall_HP, bermudalocket]
+api-version: 1.13
