@@ -1,26 +1,24 @@
 package com.michaelelin.NerdFlags;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.LinkedList;
-import java.util.List;
-
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.mewin.WGRegionEvents.events.RegionEnteredEvent;
 import com.mewin.WGRegionEvents.events.RegionLeftEvent;
 import com.sk89q.worldguard.protection.flags.StateFlag;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedList;
+import java.util.List;
 
 public class NerdFlagsRegionListener implements Listener {
 
     private NerdFlagsPlugin plugin;
 
-    public NerdFlagsRegionListener(NerdFlagsPlugin plugin) {
+    NerdFlagsRegionListener(NerdFlagsPlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -38,18 +36,6 @@ public class NerdFlagsRegionListener implements Listener {
                 plugin.getServer().dispatchCommand(player, command);
             }
         }
-
-        /* TODO: Fix warp
-        com.sk89q.worldedit.Location warp = event.getRegion().getFlag(plugin.WARP);
-        if (warp != null) {
-            Player player = event.getPlayer();
-            Vector vec = warp.getPosition();
-            World world = Bukkit.getWorld(warp.getWorld().getName());
-            Location loc = new Location(world, vec.getX(), vec.getY(), vec.getZ(), player.getLocation().getYaw(), player.getLocation().getPitch());
-            player.teleport(loc);
-            player.playSound(player.getLocation(), Sound.ENDERMAN_TELEPORT, 1f, 1f);
-        }
-        */
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -74,7 +60,7 @@ public class NerdFlagsRegionListener implements Listener {
     }
 
     private static List<String> parseCommands(String commands) {
-        List<String> commandList = new LinkedList<String>();
+        List<String> commandList = new LinkedList<>();
         StringBuilder curr = new StringBuilder();
         boolean escape = false;
         for (char c : commands.toCharArray()) {

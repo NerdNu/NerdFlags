@@ -50,7 +50,7 @@ public class NerdFlagsListener implements Listener {
             + StringUtils.join(Arrays.asList("unstuck", "!", "ascend", "asc", "descend", "desc",
                     "ceil", "thru", "jumpto", "j", "up"), "|") + ")");
 
-    public NerdFlagsListener(NerdFlagsPlugin plugin) {
+    NerdFlagsListener(NerdFlagsPlugin plugin) {
         this.plugin = plugin;
     }
 

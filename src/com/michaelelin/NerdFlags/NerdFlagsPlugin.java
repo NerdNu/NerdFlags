@@ -3,7 +3,6 @@ package com.michaelelin.NerdFlags;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.EnumFlag;
@@ -22,12 +21,8 @@ public class NerdFlagsPlugin extends JavaPlugin {
 
     WorldGuardPlugin worldguard;
 
-    WorldEditPlugin worldedit;
-
     Material _navigationWand;
 
-    private NerdFlagsListener listener;
-    private NerdFlagsRegionListener regionListener;
     private Player nextTP;
     private long timestamp;
 
@@ -52,13 +47,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
 
     StateFlag KEEP_INVENTORY;
 
-    private StringFlag DATE;
-    private StringFlag CREATED_BY;
-    private StringFlag FIRST_OWNER;
-
     StringFlag ENTRY_COMMANDS;
-
-    //public CustomLocationFlag WARP;
 
     StateFlag USE_DISPENSER;
     StateFlag USE_NOTE_BLOCK;
@@ -91,12 +80,10 @@ public class NerdFlagsPlugin extends JavaPlugin {
         }
 
         if (checkPlugin("WGRegionEvents", false)) {
-            regionListener = new NerdFlagsRegionListener(this);
-            getServer().getPluginManager().registerEvents(regionListener, this);
+            getServer().getPluginManager().registerEvents(new NerdFlagsRegionListener(this), this);
         }
 
-        listener = new NerdFlagsListener(this);
-        getServer().getPluginManager().registerEvents(listener, this);
+        getServer().getPluginManager().registerEvents(new NerdFlagsListener(this), this);
 
         // pull WorldEdit navigation wand information now
         WorldEdit worldEdit = WorldEdit.getInstance();
@@ -147,9 +134,9 @@ public class NerdFlagsPlugin extends JavaPlugin {
         flagRegistry.register(FORCE_GAMEMODE = new EnumFlag<>("force-gamemode", GameMode.class));
         flagRegistry.register(WEATHER = new StateFlag("weather", false));
         flagRegistry.register(KEEP_INVENTORY = new StateFlag("keep-inventory", false));
-        flagRegistry.register(DATE = new StringFlag("date"));
-        flagRegistry.register(CREATED_BY = new StringFlag("created-by"));
-        flagRegistry.register(FIRST_OWNER = new StringFlag("first-owner"));
+        flagRegistry.register(new StringFlag("date"));
+        flagRegistry.register(new StringFlag("created-by"));
+        flagRegistry.register(new StringFlag("first-owner"));
         flagRegistry.register(ENTRY_COMMANDS = new StringFlag("entry-commands"));
 
         flagRegistry.register(USE_DISPENSER = new StateFlag("use-dispenser", getConfig().getBoolean("default-dispenser")));
