@@ -6,6 +6,7 @@ import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.association.RegionAssociable;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
+import com.sk89q.worldguard.session.SessionManager;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Effect;
@@ -322,7 +323,9 @@ public class NerdFlagsListener implements Listener {
     private boolean hasBypass(Player player, World world) {
         com.sk89q.worldedit.world.World wrappedWorld = BukkitAdapter.adapt(world);
         LocalPlayer wrappedPlayer = plugin.worldguard.wrapPlayer(player);
-        return WorldGuard.getInstance().getPlatform().getSessionManager().hasBypass(wrappedPlayer, wrappedWorld);
+
+        SessionManager sessionManager = WorldGuard.getInstance().getPlatform().getSessionManager();
+        return sessionManager.hasBypass(wrappedPlayer, wrappedWorld);
     }
 
     private void cancelEvent(Cancellable e, boolean notifyPlayer) {

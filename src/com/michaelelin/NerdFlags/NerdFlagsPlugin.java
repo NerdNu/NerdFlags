@@ -89,6 +89,12 @@ public class NerdFlagsPlugin extends JavaPlugin {
         WorldEdit worldEdit = WorldEdit.getInstance();
         String navigationWandMaterialName = worldEdit.getConfiguration().navigationWand;
         _navigationWand = Material.getMaterial(navigationWandMaterialName);
+
+        Plugin wgPlugin = getServer().getPluginManager().getPlugin("WorldGuard");
+        if (wgPlugin instanceof WorldGuardPlugin) {
+            worldguard = (WorldGuardPlugin) wgPlugin;
+        }
+
     }
 
     private <T extends Plugin> boolean checkPlugin(String name, boolean required) {
