@@ -45,7 +45,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
 
     StateFlag WEATHER;
 
-    StateFlag KEEP_INVENTORY;
+    StateFlag NERD_KEEP_INVENTORY;
 
     StringFlag ENTRY_COMMANDS;
 
@@ -119,7 +119,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
     }
 
     /**
-     * Hack flags into world guard before any onLoad() of any plugin is called
+     * Register Flags.
      */
     @Override
     public void onLoad() {
@@ -139,7 +139,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
         flagRegistry.register(TELEPORT_ENTRY = new StateFlag("teleport-entry", true));
         flagRegistry.register(FORCE_GAMEMODE = new EnumFlag<>("force-gamemode", GameMode.class));
         flagRegistry.register(WEATHER = new StateFlag("weather", false));
-        flagRegistry.register(KEEP_INVENTORY = new StateFlag("keep-inventory", false));
+        flagRegistry.register(NERD_KEEP_INVENTORY = new StateFlag("nerd-keep-inventory", false));
         flagRegistry.register(new StringFlag("date"));
         flagRegistry.register(new StringFlag("created-by"));
         flagRegistry.register(new StringFlag("first-owner"));

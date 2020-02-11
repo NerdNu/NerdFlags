@@ -306,7 +306,7 @@ public class NerdFlagsListener implements Listener {
     public void onPlayerDeath(PlayerDeathEvent e) {
         Player player = e.getEntity();
         
-        if (testState(player, plugin.KEEP_INVENTORY)) {
+        if (testState(player, plugin.NERD_KEEP_INVENTORY)) {
             e.setKeepLevel(false);
             e.setKeepInventory(true);
         }
