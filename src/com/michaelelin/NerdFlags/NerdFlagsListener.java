@@ -185,9 +185,6 @@ public class NerdFlagsListener implements Listener {
                     case BEACON:
                         setCancelled(event, !testBuild(player, location, plugin.USE_BEACON), true);
                         break;
-                    case ANVIL:
-                        setCancelled(event, !testBuild(player, location, plugin.USE_ANVIL), true);
-                        break;
                     case COMPARATOR:
                         setCancelled(event, !testBuild(player, location, plugin.USE_COMPARATOR), true);
                         break;

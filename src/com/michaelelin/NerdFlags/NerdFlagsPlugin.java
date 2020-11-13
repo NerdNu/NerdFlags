@@ -66,7 +66,6 @@ public class NerdFlagsPlugin extends JavaPlugin {
     StateFlag USE_ENDER_CHEST;
     StateFlag USE_TRIPWIRE;
     StateFlag USE_BEACON;
-    StateFlag USE_ANVIL;
     StateFlag USE_COMPARATOR;
     StateFlag USE_HOPPER;
     StateFlag USE_DROPPER;
@@ -162,7 +161,6 @@ public class NerdFlagsPlugin extends JavaPlugin {
         flagRegistry.register(USE_ENDER_CHEST = new StateFlag("use-ender-chest", getConfig().getBoolean("default-ender-chest")));
         flagRegistry.register(USE_TRIPWIRE = new StateFlag("use-tripwire", getConfig().getBoolean("default-tripwire")));
         flagRegistry.register(USE_BEACON = new StateFlag("use-beacon", getConfig().getBoolean("default-beacon")));
-        flagRegistry.register(USE_ANVIL = new StateFlag("use-anvil", getConfig().getBoolean("default-anvil")));
         flagRegistry.register(USE_COMPARATOR = new StateFlag("use-comparator", getConfig().getBoolean("default-comparator")));
         flagRegistry.register(USE_HOPPER = new StateFlag("use-hopper", getConfig().getBoolean("default-hopper")));
         flagRegistry.register(USE_DROPPER = new StateFlag("use-dropper", getConfig().getBoolean("default-dropper")));

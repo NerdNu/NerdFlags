@@ -38,7 +38,6 @@ Available flags:
 | use-ender-chest            | State                 | ALLOW         |
 | use-tripwire               | State                 | ALLOW         |
 | use-beacon                 | State                 | ALLOW         |
-| use-anvil                  | State                 | ALLOW         |
 | use-comparator             | State                 | DENY          |
 | use-hopper                 | State                 | ALLOW         |
 | use-dropper                | State                 | ALLOW         |
