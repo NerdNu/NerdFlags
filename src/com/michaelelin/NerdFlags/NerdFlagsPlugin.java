@@ -19,57 +19,58 @@ import java.util.logging.Level;
 
 public class NerdFlagsPlugin extends JavaPlugin {
 
-    WorldGuardPlugin worldguard;
+    public WorldGuardPlugin worldguard;
 
-    Material _navigationWand;
+    public Material _navigationWand;
 
     private Player nextTP;
     private long timestamp;
 
     ProtocolManager protocolManager;
 
-    StateFlag ALLOW_DROPS;
-    StateFlag ALLOW_MOB_DROPS;
+    public StateFlag ALLOW_DROPS;
+    public StateFlag ALLOW_MOB_DROPS;
 
-    StateFlag PLAYER_MOB_DAMAGE;
+    public StateFlag PLAYER_MOB_DAMAGE;
 
-    StateFlag NETHER_PORTAL;
-    StateFlag END_PORTAL;
+    public StateFlag NETHER_PORTAL;
+    public StateFlag END_PORTAL;
 
-    StateFlag SNOWBALL_FIREFIGHT;
+    public StateFlag SNOWBALL_FIREFIGHT;
 
-    StateFlag COMPASS;
-    StateFlag TELEPORT_ENTRY;
+    public StateFlag COMPASS;
+    public StateFlag TELEPORT_ENTRY;
 
-    EnumFlag<GameMode> FORCE_GAMEMODE;
+    public EnumFlag<GameMode> FORCE_GAMEMODE;
 
-    StateFlag WEATHER;
+    public StateFlag WEATHER;
 
-    StateFlag NERD_KEEP_INVENTORY;
+    public StateFlag NERD_KEEP_INVENTORY;
 
-    StringFlag ENTRY_COMMANDS;
+    public StringFlag ENTRY_COMMANDS;
 
-    StateFlag USE_DISPENSER;
-    StateFlag USE_NOTE_BLOCK;
-    StateFlag USE_WORKBENCH;
-    StateFlag USE_DOOR;
-    StateFlag USE_LEVER;
-    StateFlag USE_PRESSURE_PLATE;
-    StateFlag USE_BUTTON;
-    StateFlag USE_JUKEBOX;
-    StateFlag USE_REPEATER;
-    StateFlag USE_TRAP_DOOR;
-    StateFlag USE_FENCE_GATE;
-    StateFlag USE_BREWING_STAND;
-    StateFlag USE_CAULDRON;
-    StateFlag USE_ENCHANTMENT_TABLE;
-    StateFlag USE_ENDER_CHEST;
-    StateFlag USE_TRIPWIRE;
-    StateFlag USE_BEACON;
-    StateFlag USE_COMPARATOR;
-    StateFlag USE_HOPPER;
-    StateFlag USE_DROPPER;
-    StateFlag USE_DAYLIGHT_DETECTOR;
+    public StateFlag USE_DISPENSER;
+    public StateFlag USE_NOTE_BLOCK;
+    public StateFlag USE_WORKBENCH;
+    public StateFlag USE_DOOR;
+    public StateFlag USE_LEVER;
+    public StateFlag USE_PRESSURE_PLATE;
+    public StateFlag USE_BUTTON;
+    public StateFlag USE_JUKEBOX;
+    public StateFlag USE_REPEATER;
+    public StateFlag USE_TRAP_DOOR;
+    public StateFlag USE_FENCE_GATE;
+    public StateFlag USE_BREWING_STAND;
+    public StateFlag USE_CAULDRON;
+    public StateFlag USE_ENCHANTMENT_TABLE;
+    public StateFlag USE_ENDER_CHEST;
+    public StateFlag USE_TRIPWIRE;
+    public StateFlag USE_BEACON;
+    public StateFlag USE_COMPARATOR;
+    public StateFlag USE_HOPPER;
+    public StateFlag USE_DROPPER;
+    public StateFlag USE_DAYLIGHT_DETECTOR;
+    public StateFlag TAKE_LECTERN_BOOK;
 
     @Override
     public void onEnable() {
@@ -108,12 +109,12 @@ public class NerdFlagsPlugin extends JavaPlugin {
         return true;
     }
 
-    void expectTeleport(Player player) {
+    public void expectTeleport(Player player) {
         this.nextTP = player;
         this.timestamp = player.getPlayerTime();
     }
 
-    boolean hasCompassed(Player player) {
+    public boolean hasCompassed(Player player) {
         return this.nextTP == player && this.timestamp == player.getPlayerTime();
     }
 
@@ -144,6 +145,7 @@ public class NerdFlagsPlugin extends JavaPlugin {
         flagRegistry.register(new StringFlag("first-owner"));
         flagRegistry.register(ENTRY_COMMANDS = new StringFlag("entry-commands"));
 
+        flagRegistry.register(TAKE_LECTERN_BOOK = new StateFlag("take-lectern-book", getConfig().getBoolean("default-lectern")));;
         flagRegistry.register(USE_DISPENSER = new StateFlag("use-dispenser", getConfig().getBoolean("default-dispenser")));
         flagRegistry.register(USE_NOTE_BLOCK = new StateFlag("use-note-block", getConfig().getBoolean("default-note-block")));
         flagRegistry.register(USE_WORKBENCH = new StateFlag("use-workbench", getConfig().getBoolean("default-workbench")));

@@ -41,6 +41,7 @@ Available flags:
 | use-comparator             | State                 | DENY          |
 | use-hopper                 | State                 | ALLOW         |
 | use-dropper                | State                 | ALLOW         |
+| take-lectern-book          | State                 | ALLOW         |
 
 
 Building
