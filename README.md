@@ -42,15 +42,3 @@ Available flags:
 | use-hopper                 | State                 | ALLOW         |
 | use-dropper                | State                 | ALLOW         |
 | take-lectern-book          | State                 | ALLOW         |
-
-
-Building
---------
-The `WGRegionEvents` plugin doesn't currently have an active Maven repository.
-
-So it is compiled and installed in the local repository as follows:
-```
-git clone https://github.com/mewin/WorldGuard-Region-Events
-cd WorldGuard-Region-Events
-mvn install
-```
