@@ -2,9 +2,11 @@ package com.michaelelin.NerdFlags;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
-import com.mewin.WGRegionEvents.events.RegionEnteredEvent;
-import com.mewin.WGRegionEvents.events.RegionLeftEvent;
 import com.sk89q.worldguard.protection.flags.StateFlag;
+
+import de.netzkronehd.wgregionevents.events.RegionEnterEvent;
+import de.netzkronehd.wgregionevents.events.RegionLeaveEvent;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -23,7 +25,7 @@ public class NerdFlagsRegionListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerEnteredRegion(RegionEnteredEvent event) {
+    public void onPlayerEnteredRegion(RegionEnterEvent event) {
         Player player = event.getPlayer();
         StateFlag.State weatherState = event.getRegion().getFlag(plugin.WEATHER);
         if (weatherState == StateFlag.State.ALLOW) {
@@ -39,7 +41,7 @@ public class NerdFlagsRegionListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerLeftRegion(RegionLeftEvent event) {
+    public void onPlayerLeftRegion(RegionLeaveEvent event) {
         Player player = event.getPlayer();
         StateFlag.State weatherState = event.getRegion().getFlag(plugin.WEATHER);
         boolean storming = player.getWorld().hasStorm();
