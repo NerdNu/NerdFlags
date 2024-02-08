@@ -167,6 +167,11 @@ public class NerdFlagsListener implements Listener {
 				case JUNGLE_TRAPDOOR:
 				case OAK_TRAPDOOR:
 				case SPRUCE_TRAPDOOR:
+				case MANGROVE_TRAPDOOR:
+				case CHERRY_TRAPDOOR:
+				case BAMBOO_TRAPDOOR:
+				case CRIMSON_TRAPDOOR:
+				case WARPED_TRAPDOOR:
 					setCancelled(event, !testBuild(player, location, plugin.USE_TRAP_DOOR), true);
 					break;
 				case ACACIA_FENCE_GATE:
