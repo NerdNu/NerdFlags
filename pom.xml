@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.michaelelin</groupId>
     <artifactId>NerdFlags</artifactId>
-    <version>0.7.3</version>
+    <version>0.7.4</version>
     <url>https://github.com/NerdNu/NerdFlags</url>
     <build>
         <defaultGoal>clean package</defaultGoal>
@@ -31,12 +31,16 @@
     </build>
     <repositories>
         <repository>
-            <id>spigot-repo</id>
-            <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+            <id>papermc</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>md_5-releases</id>
+            <url>https://repo.md-5.net/content/repositories/releases/</url>
         </repository>
         <repository>
             <id>dmulloy2-repo</id>
-            <url>https://repo.dmulloy2.net/nexus/repository/public/</url>
+            <url>https://repo.dmulloy2.net/repository/public/</url>
         </repository>
 	    <repository>
 	        <id>sk89q-repo</id>
@@ -49,14 +53,14 @@
     </repositories>
     <dependencies>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.20.2-R0.1-SNAPSHOT</version>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>1.20.4-R0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.comphenix.protocol</groupId>
             <artifactId>ProtocolLib</artifactId>
-            <version>4.5.0</version>
+            <version>5.1.0</version>
         </dependency>
         <dependency>
             <groupId>com.sk89q.worldguard</groupId>

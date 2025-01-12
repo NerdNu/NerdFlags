@@ -7,13 +7,10 @@ import com.sk89q.worldguard.protection.association.RegionAssociable;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 import com.sk89q.worldguard.session.SessionManager;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
 import org.apache.commons.lang.StringUtils;
-import org.bukkit.ChatColor;
-import org.bukkit.Effect;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Arrow;
@@ -125,7 +122,8 @@ public class NerdFlagsListener implements Listener {
 			Player player = event.getPlayer();
 
 			if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-				switch (event.getClickedBlock().getType()) {
+				Material material = event.getClickedBlock().getType();
+				switch (material) {
 				case DISPENSER:
 					setCancelled(event, !testBuild(player, location, plugin.USE_DISPENSER), true);
 					break;
@@ -135,52 +133,14 @@ public class NerdFlagsListener implements Listener {
 				case CRAFTING_TABLE:
 					setCancelled(event, !testBuild(player, location, plugin.USE_WORKBENCH), true);
 					break;
-				case ACACIA_DOOR:
-				case BIRCH_DOOR:
-				case DARK_OAK_DOOR:
-				case JUNGLE_DOOR:
-				case OAK_DOOR:
-				case SPRUCE_DOOR:
-					setCancelled(event, !testBuild(player, location, plugin.USE_DOOR), true);
-					break;
 				case LEVER:
 					setCancelled(event, !testBuild(player, location, plugin.USE_LEVER), true);
-					break;
-				case STONE_BUTTON:
-				case ACACIA_BUTTON:
-				case BIRCH_BUTTON:
-				case DARK_OAK_BUTTON:
-				case JUNGLE_BUTTON:
-				case OAK_BUTTON:
-				case SPRUCE_BUTTON:
-					setCancelled(event, !testBuild(player, location, plugin.USE_BUTTON), true);
 					break;
 				case JUKEBOX:
 					setCancelled(event, !testBuild(player, location, plugin.USE_JUKEBOX), true);
 					break;
 				case REPEATER:
 					setCancelled(event, !testBuild(player, location, plugin.USE_REPEATER), true);
-					break;
-				case ACACIA_TRAPDOOR:
-				case BIRCH_TRAPDOOR:
-				case DARK_OAK_TRAPDOOR:
-				case JUNGLE_TRAPDOOR:
-				case OAK_TRAPDOOR:
-				case SPRUCE_TRAPDOOR:
-				case MANGROVE_TRAPDOOR:
-				case CHERRY_TRAPDOOR:
-				case BAMBOO_TRAPDOOR:
-				case CRIMSON_TRAPDOOR:
-				case WARPED_TRAPDOOR:
-					setCancelled(event, !testBuild(player, location, plugin.USE_TRAP_DOOR), true);
-					break;
-				case ACACIA_FENCE_GATE:
-				case BIRCH_FENCE_GATE:
-				case DARK_OAK_FENCE_GATE:
-				case JUNGLE_FENCE_GATE:
-				case OAK_FENCE_GATE:
-				case SPRUCE_FENCE_GATE:
-					setCancelled(event, !testBuild(player, location, plugin.USE_FENCE_GATE), true);
 					break;
 				case BREWING_STAND:
 					setCancelled(event, !testBuild(player, location, plugin.USE_BREWING_STAND), true);
@@ -210,27 +170,25 @@ public class NerdFlagsListener implements Listener {
 					setCancelled(event, !testBuild(player, location, plugin.USE_DAYLIGHT_DETECTOR), true);
 					break;
 				default:
+					// Tags used for grabbing groups of similar interact-able blocks.
+					if(Tag.DOORS.getValues().contains(material)) {
+						setCancelled(event, !testBuild(player, location, plugin.USE_DOOR), true);
+					} else if(Tag.TRAPDOORS.getValues().contains(material)) {
+						setCancelled(event, !testBuild(player, location, plugin.USE_TRAP_DOOR), true);
+					} else if(Tag.FENCE_GATES.getValues().contains(material)) {
+						setCancelled(event, !testBuild(player, location, plugin.USE_FENCE_GATE), true);
+					} else if(Tag.BUTTONS.getValues().contains(material)) {
+						setCancelled(event, !testBuild(player, location, plugin.USE_BUTTON), true);
+					}
 				}
 			}
 
 			if (event.getAction() == Action.PHYSICAL) {
 				Material material = event.getClickedBlock().getType();
-				switch (material) {
-				case ACACIA_PRESSURE_PLATE:
-				case BIRCH_PRESSURE_PLATE:
-				case DARK_OAK_PRESSURE_PLATE:
-				case JUNGLE_PRESSURE_PLATE:
-				case OAK_PRESSURE_PLATE:
-				case SPRUCE_PRESSURE_PLATE:
-				case HEAVY_WEIGHTED_PRESSURE_PLATE:
-				case LIGHT_WEIGHTED_PRESSURE_PLATE:
-				case STONE_PRESSURE_PLATE:
+				if(Tag.PRESSURE_PLATES.getValues().contains(material)) {
 					setCancelled(event, !testBuild(player, location, plugin.USE_PRESSURE_PLATE), false);
-					break;
-				case TRIPWIRE:
+				} else if(material == Material.TRIPWIRE) {
 					setCancelled(event, !testBuild(player, location, plugin.USE_TRIPWIRE), false);
-					break;
-				default:
 				}
 			}
 		}
@@ -347,7 +305,8 @@ public class NerdFlagsListener implements Listener {
 		if (e.isCancelled() && notifyPlayer && e instanceof PlayerEvent) {
 			PlayerEvent playerEvent = (PlayerEvent) e;
 			Player player = playerEvent.getPlayer();
-			player.sendMessage(ChatColor.DARK_RED + "You don't have permission to use that in this area.");
+			player.sendMessage(Component.text().content("You don't have permission to use that in this area.")
+					.color(TextColor.fromHexString("#AA0000")));
 		}
 	}
 

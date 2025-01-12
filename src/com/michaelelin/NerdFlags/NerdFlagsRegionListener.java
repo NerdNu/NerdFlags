@@ -54,11 +54,7 @@ public class NerdFlagsRegionListener implements Listener {
         PacketContainer weatherPacket = plugin.protocolManager.createPacket(PacketType.Play.Server.GAME_STATE_CHANGE);
         weatherPacket.getIntegers().write(0, weather ? 2 : 1);
         weatherPacket.getFloat().write(0, 0F);
-        try {
-            plugin.protocolManager.sendServerPacket(player, weatherPacket);
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
+        plugin.protocolManager.sendServerPacket(player, weatherPacket);
     }
 
     private static List<String> parseCommands(String commands) {
