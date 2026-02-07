@@ -7,27 +7,20 @@ import com.sk89q.worldguard.protection.association.RegionAssociable;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 import com.sk89q.worldguard.session.SessionManager;
+import io.papermc.paper.world.WeatheringCopperState;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
 import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityPortalEvent;
-import org.bukkit.event.entity.ItemSpawnEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
@@ -36,6 +29,7 @@ import org.bukkit.event.player.PlayerPortalEvent;
 import org.bukkit.event.player.PlayerTakeLecternBookEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
+import org.bukkit.event.raid.RaidTriggerEvent;
 import org.bukkit.projectiles.ProjectileSource;
 
 import java.util.Arrays;
@@ -105,7 +99,30 @@ public class NerdFlagsListener implements Listener {
 			}
 		}
 	}
-	
+
+	/**
+	 * Prevent raids from being started in other players' regions.
+	 */
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onRaidTrigger(RaidTriggerEvent event) {
+		if(testState(event.getPlayer(), plugin.ALLOW_RAIDS)) return;
+		sendNotifyMessage(event.getPlayer());
+		event.setCancelled(true);
+	}
+
+	/**
+	 * Prevent copper golems from turning into statues in regions.
+	 */
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void onEntityChangeBlock(EntityChangeBlockEvent event) {
+		Entity entity = event.getEntity();
+		if(!(entity instanceof CopperGolem)) return;
+		boolean canBecomeStatue = testState(entity.getLocation(), plugin.ALLOW_COPPER_STATUES);
+		if(!canBecomeStatue) {
+			event.setCancelled(true);
+		}
+	}
+
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onLecternBookTake(PlayerTakeLecternBookEvent e) {
 		setCancelled(e, !testBuild(e.getPlayer(), e.getPlayer().getLocation(), plugin.TAKE_LECTERN_BOOK), true);
@@ -305,9 +322,13 @@ public class NerdFlagsListener implements Listener {
 		if (e.isCancelled() && notifyPlayer && e instanceof PlayerEvent) {
 			PlayerEvent playerEvent = (PlayerEvent) e;
 			Player player = playerEvent.getPlayer();
-			player.sendMessage(Component.text().content("You don't have permission to use that in this area.")
-					.color(TextColor.fromHexString("#AA0000")));
+			sendNotifyMessage(player);
 		}
+	}
+
+	private void sendNotifyMessage(Player player) {
+		player.sendMessage(Component.text().content("You don't have permission to use that in this area.")
+				.color(TextColor.fromHexString("#AA0000")));
 	}
 
 	private boolean testState(Entity entity, StateFlag flag) {

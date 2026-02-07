@@ -49,6 +49,10 @@ public class NerdFlagsPlugin extends JavaPlugin {
 
     public StringFlag ENTRY_COMMANDS;
 
+    public StateFlag ALLOW_RAIDS;
+
+    public StateFlag ALLOW_COPPER_STATUES;
+
     public StateFlag USE_DISPENSER;
     public StateFlag USE_NOTE_BLOCK;
     public StateFlag USE_WORKBENCH;
@@ -144,6 +148,8 @@ public class NerdFlagsPlugin extends JavaPlugin {
         flagRegistry.register(new StringFlag("created-by"));
         flagRegistry.register(new StringFlag("first-owner"));
         flagRegistry.register(ENTRY_COMMANDS = new StringFlag("entry-commands"));
+        flagRegistry.register(ALLOW_RAIDS = new StateFlag("allow-raids", true));
+        flagRegistry.register(ALLOW_COPPER_STATUES = new StateFlag("allow-copper-statues", true));
 
         flagRegistry.register(TAKE_LECTERN_BOOK = new StateFlag("take-lectern-book", getConfig().getBoolean("default-lectern")));;
         flagRegistry.register(USE_DISPENSER = new StateFlag("use-dispenser", getConfig().getBoolean("default-dispenser")));
