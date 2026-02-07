@@ -5,6 +5,7 @@ import com.sk89q.worldguard.LocalPlayer;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.association.RegionAssociable;
 import com.sk89q.worldguard.protection.flags.StateFlag;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.regions.RegionQuery;
 import com.sk89q.worldguard.session.SessionManager;
 import io.papermc.paper.world.WeatheringCopperState;
@@ -105,7 +106,7 @@ public class NerdFlagsListener implements Listener {
 	 */
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onRaidTrigger(RaidTriggerEvent event) {
-		if(testState(event.getPlayer(), plugin.ALLOW_RAIDS)) return;
+		if(testPlayerState(event.getPlayer(), plugin.ALLOW_RAIDS)) return;
 		sendNotifyMessage(event.getPlayer());
 		event.setCancelled(true);
 	}
@@ -329,6 +330,14 @@ public class NerdFlagsListener implements Listener {
 	private void sendNotifyMessage(Player player) {
 		player.sendMessage(Component.text().content("You don't have permission to use that in this area.")
 				.color(TextColor.fromHexString("#AA0000")));
+	}
+	
+	private boolean testPlayerState(Player player, StateFlag flag) {
+		LocalPlayer localPlayer = plugin.worldguard.wrapPlayer(player);
+		com.sk89q.worldedit.util.Location location = localPlayer.getLocation();
+		RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+		RegionQuery query = container.createQuery();
+		return query.testState(location, localPlayer, flag);
 	}
 
 	private boolean testState(Entity entity, StateFlag flag) {
