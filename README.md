@@ -10,6 +10,8 @@ Available flags:
 | date                       | String                | *N/A*         |
 | created-by                 | String                | *N/A*         |
 | entry-commands             | String                | *N/A*         |
+| allow-raids                | State                 | ALLOW         |
+| allow-copper-statues       | State                 | ALLOW         |
 | weather                    | State                 | DENY          |
 | compass                    | State                 | ALLOW         |
 | teleport-entry             | State                 | ALLOW         |
